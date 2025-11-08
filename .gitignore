@@ -1,0 +1,116 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Testing
+.jest/
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Rust
+target/
+Cargo.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+.safety-key
+.capital-state.json
+.capital-state.backup.json
+*.key
+*.pem
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# PDF (except documentation)
+*.pdf
+!noderr_protocol_master_documentation.pdf
+
+# Git
+.git/
+
+# Large data files (consider using Git LFS for these)
+data/crypto/
+data/paper_trading/
+data/paper_trading_state/
+
+

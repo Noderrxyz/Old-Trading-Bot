@@ -1,0 +1,12 @@
+{
+  "agentVotes": {},
+  "agentDelegations": {},
+  "agentParticipationScores": {},
+  "voteHistoryByProposal": {},
+  "voteHistoryByAgent": {},
+  "updatedAt": 1714147200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Index of historical agent votes and delegations in liquid governance"
+  }
+} 

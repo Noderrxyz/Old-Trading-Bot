@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: timescaledb-secret
+  namespace: noderr-prod
+stringData:
+  POSTGRES_USER: noderr
+  POSTGRES_PASSWORD: noderrpass
+  POSTGRES_DB: noderr_marketdata
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: timescaledb-pvc
+  namespace: noderr-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: timescaledb
+  namespace: noderr-prod
+spec:
+  serviceName: timescaledb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timescaledb
+  template:
+    metadata:
+      labels:
+        app: timescaledb
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: timescaledb
+          image: timescale/timescaledb:2.14.2-pg15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-secret
+                  key: POSTGRES_DB
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+          volumeMounts:
+            - name: timescaledb-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: timescaledb-storage
+          persistentVolumeClaim:
+            claimName: timescaledb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timescaledb
+  namespace: noderr-prod
+spec:
+  selector:
+    app: timescaledb
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP 

@@ -1,0 +1,163 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v2
+
+  build-test:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint and type-check
+        run: |
+          npm run lint
+          npm run typecheck
+
+      - name: Run unit tests with coverage
+        run: |
+          npm run test -- --coverage
+          npm run test:coverage-report
+
+      - name: Run end-to-end tests
+        run: npm run test:e2e
+
+      - name: Run performance benchmarks
+        run: npm run benchmark
+
+      - name: Validate Kubernetes manifests
+        uses: azure/k8s-manifest-validator@v1
+        with:
+          manifests: |
+            k8s/*.yaml
+            frontend/k8s/*.yaml
+
+      - name: Build project
+        run: npm run build
+
+      - name: Build and scan Docker images
+        run: |
+          docker build -t noderr-backend:ci .
+          docker build -t noderr-frontend:ci frontend/
+
+      - name: Run Trivy scan (Docker image security)
+        uses: aquasecurity/trivy-action@v0.13.1
+        with:
+          image-ref: 'noderr-backend:ci'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Run Trivy scan (Frontend)
+        uses: aquasecurity/trivy-action@v0.13.1
+        with:
+          image-ref: 'noderr-frontend:ci'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  deploy-staging:
+    needs: build-test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push images to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY_BACKEND: noderr-backend
+          ECR_REPOSITORY_FRONTEND: noderr-frontend
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG frontend/
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
+
+      - name: Update Kubernetes deployments
+        run: |
+          aws eks update-kubeconfig --name noderr-staging
+          kubectl set image deployment/noderr-backend backend=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
+          kubectl set image deployment/noderr-frontend frontend=$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/noderr-backend
+          kubectl rollout status deployment/noderr-frontend
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+
+  notify:
+    needs: [security-scan, build-test, deploy-staging]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always()
+
+# Notes:
+# - Add or adjust steps for your actual test, lint, and build scripts.
+# - Add secrets for Docker registry if pushing images.
+# - Add deployment steps as needed for your environment. 

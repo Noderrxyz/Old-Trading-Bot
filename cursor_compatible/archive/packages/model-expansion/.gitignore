@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Model artifacts
+models/
+checkpoints/
+*.h5
+*.pkl
+*.joblib
+
+# Cache
+.cache/
+*.cache
+
+# Jupyter notebooks (if used for experimentation)
+*.ipynb_checkpoints/
+
+# Python (if mixed environment)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Package files
+*.tgz
+*.tar.gz 

@@ -1,0 +1,367 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-integration-layer
+  namespace: noderr
+  labels:
+    app: noderr
+    component: integration-layer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: noderr
+      component: integration-layer
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: integration-layer
+    spec:
+      containers:
+      - name: integration-layer
+        image: noderr/integration-layer:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "integration-layer"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-risk-engine
+  namespace: noderr
+  labels:
+    app: noderr
+    component: risk-engine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: noderr
+      component: risk-engine
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: risk-engine
+    spec:
+      containers:
+      - name: risk-engine
+        image: noderr/risk-engine:latest
+        ports:
+        - containerPort: 3001
+          name: http
+        - containerPort: 9091
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "risk-engine"
+        - name: INTEGRATION_URL
+          value: "http://integration-layer-service:3000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-market-intelligence
+  namespace: noderr
+  labels:
+    app: noderr
+    component: market-intelligence
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: noderr
+      component: market-intelligence
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: market-intelligence
+    spec:
+      containers:
+      - name: market-intelligence
+        image: noderr/market-intelligence:latest
+        ports:
+        - containerPort: 3002
+          name: http
+        - containerPort: 9092
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "market-intelligence"
+        - name: INTEGRATION_URL
+          value: "http://integration-layer-service:3000"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-execution-optimizer
+  namespace: noderr
+  labels:
+    app: noderr
+    component: execution-optimizer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: noderr
+      component: execution-optimizer
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: execution-optimizer
+    spec:
+      containers:
+      - name: execution-optimizer
+        image: noderr/execution-optimizer:latest
+        ports:
+        - containerPort: 3003
+          name: http
+        - containerPort: 9093
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "execution-optimizer"
+        - name: INTEGRATION_URL
+          value: "http://integration-layer-service:3000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-ai-core
+  namespace: noderr
+  labels:
+    app: noderr
+    component: ai-core
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: noderr
+      component: ai-core
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: ai-core
+    spec:
+      containers:
+      - name: ai-core
+        image: noderr/ai-core:latest
+        ports:
+        - containerPort: 3004
+          name: http
+        - containerPort: 9094
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "ai-core"
+        - name: INTEGRATION_URL
+          value: "http://integration-layer-service:3000"
+        - name: GPU_ENABLED
+          value: "true"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-system-vanguard
+  namespace: noderr
+  labels:
+    app: noderr
+    component: system-vanguard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: noderr
+      component: system-vanguard
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: system-vanguard
+    spec:
+      containers:
+      - name: system-vanguard
+        image: noderr/system-vanguard:latest
+        ports:
+        - containerPort: 3005
+          name: http
+        - containerPort: 9095
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "system-vanguard"
+        - name: INTEGRATION_URL
+          value: "http://integration-layer-service:3000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-quant-research
+  namespace: noderr
+  labels:
+    app: noderr
+    component: quant-research
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: noderr
+      component: quant-research
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: quant-research
+    spec:
+      containers:
+      - name: quant-research
+        image: noderr/quant-research:latest
+        ports:
+        - containerPort: 3006
+          name: http
+        - containerPort: 9096
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "quant-research"
+        - name: INTEGRATION_URL
+          value: "http://integration-layer-service:3000"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-telemetry-layer
+  namespace: noderr
+  labels:
+    app: noderr
+    component: telemetry-layer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: noderr
+      component: telemetry-layer
+  template:
+    metadata:
+      labels:
+        app: noderr
+        component: telemetry-layer
+    spec:
+      containers:
+      - name: telemetry-layer
+        image: noderr/telemetry-layer:latest
+        ports:
+        - containerPort: 3007
+          name: http
+        - containerPort: 9097
+          name: metrics
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MODULE_NAME
+          value: "telemetry-layer"
+        - name: PROMETHEUS_URL
+          value: "http://prometheus:9090"
+        - name: LOKI_URL
+          value: "http://loki:3100"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m" 

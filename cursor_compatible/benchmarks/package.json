@@ -1,0 +1,32 @@
+{
+  "name": "noderr-protocol-benchmarks",
+  "version": "1.0.0",
+  "description": "Performance benchmarking suite for Noderr Protocol Trading Bot",
+  "main": "run.sh",
+  "scripts": {
+    "strategy-execution": "node strategy-execution.js",
+    "fallback-comparison": "node fallback-comparison.js",
+    "cross-chain-routing": "node cross-chain-routing.js",
+    "adapter-load": "node adapter-load.js",
+    "multi-chain": "node multi-chain.js",
+    "strategy-mutation": "node strategy-mutation.js",
+    "chaos-test": "node chaos-test.js",
+    "recovery-test": "node recovery-test.js"
+  },
+  "author": "Noderr Protocol Team",
+  "license": "MIT",
+  "dependencies": {
+    "cli-progress": "^3.12.0",
+    "colors": "^1.4.0",
+    "fs-extra": "^11.1.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "node-fetch": "^2.6.12",
+    "ora": "^5.4.1",
+    "pino": "^8.14.1",
+    "yargs": "^17.7.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 

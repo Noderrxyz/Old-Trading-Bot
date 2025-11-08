@@ -1,0 +1,50 @@
+{
+  "name": "@noderr/readiness-validator",
+  "version": "1.0.0",
+  "description": "Readiness Validator CLI - Pre-launch validation and system checks",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "noderr-validate": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "jest",
+    "validate": "node dist/cli.js",
+    "validate:full": "node dist/cli.js --all",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "validation",
+    "readiness",
+    "testing",
+    "cli"
+  ],
+  "author": "Noderr Protocol Team",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "table": "^6.8.1",
+    "winston": "^3.11.0",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/table": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11",
+    "ts-jest": "^29.1.1",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 

@@ -1,0 +1,339 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: noderr-trading
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: noderr-config
+  namespace: noderr-trading
+data:
+  cpu-affinity.yaml: |
+    enabled: true
+    core_assignments:
+      market_data: [1, 2]
+      order_router: [3]
+      risk_calc: [4]
+      strategy_executor: [5, 6, 7]
+    reserved_cores: [0]
+    numa_aware: true
+  
+  telemetry.yaml: |
+    enabled: true
+    latency_buckets: [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+    alert_thresholds:
+      p50_warning: 100
+      p50_critical: 500
+      p90_warning: 500
+      p90_critical: 1000
+      p99_warning: 1000
+      p99_critical: 5000
+    export_interval: 10
+  
+  risk-limits.yaml: |
+    max_position_size_usd: 100000
+    max_daily_loss_usd: 10000
+    max_drawdown_pct: 15
+    max_leverage: 3
+    min_trade_interval_us: 100
+    max_orders_per_second: 1000
+    max_symbol_exposure_pct: 25
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: noderr-core
+  namespace: noderr-trading
+spec:
+  selector:
+    app: noderr-core
+  ports:
+    - name: grpc
+      port: 50051
+      targetPort: 50051
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+    - name: health
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noderr-core
+  namespace: noderr-trading
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: noderr-core
+  template:
+    metadata:
+      labels:
+        app: noderr-core
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Node affinity for dedicated trading nodes
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/trading
+                operator: In
+                values: ["true"]
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values: ["noderr-core"]
+            topologyKey: kubernetes.io/hostname
+      
+      # Priority for critical trading pods
+      priorityClassName: system-node-critical
+      
+      containers:
+      - name: noderr-core
+        image: noderr/core:latest
+        imagePullPolicy: Always
+        
+        # Resource requests and limits
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "4000m"
+            ephemeral-storage: "10Gi"
+          limits:
+            memory: "8Gi"
+            cpu: "8000m"
+            ephemeral-storage: "20Gi"
+        
+        # Security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            add:
+              - NET_ADMIN  # For network optimization
+              - SYS_NICE   # For CPU affinity
+            drop:
+              - ALL
+        
+        # Environment variables
+        env:
+        - name: RUST_LOG
+          value: "info,noderr_core=debug"
+        - name: RUST_BACKTRACE
+          value: "1"
+        - name: CPU_AFFINITY_CONFIG
+          value: "/config/cpu-affinity.yaml"
+        - name: TELEMETRY_CONFIG
+          value: "/config/telemetry.yaml"
+        - name: RISK_LIMITS_CONFIG
+          value: "/config/risk-limits.yaml"
+        
+        # Volume mounts
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: shared-memory
+          mountPath: /dev/shm
+        
+        # Probes
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        # Startup probe for slow initialization
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 8080
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+      
+      # ML Engine sidecar
+      - name: ml-engine
+        image: noderr/ml-engine:latest
+        imagePullPolicy: Always
+        
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: 1  # Request GPU
+          limits:
+            memory: "4Gi"
+            cpu: "4000m"
+            nvidia.com/gpu: 1
+        
+        env:
+        - name: USE_GPU
+          value: "true"
+        - name: MODEL_PATH
+          value: "/models"
+        
+        volumeMounts:
+        - name: models
+          mountPath: /models
+        - name: shared-memory
+          mountPath: /dev/shm
+      
+      volumes:
+      - name: config
+        configMap:
+          name: noderr-config
+      - name: shared-memory
+        emptyDir:
+          medium: Memory
+          sizeLimit: 2Gi
+      - name: models
+        persistentVolumeClaim:
+          claimName: ml-models-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ml-models-pvc
+  namespace: noderr-trading
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: noderr-core-pdb
+  namespace: noderr-trading
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: noderr-core
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: noderr-core-hpa
+  namespace: noderr-trading
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: noderr-core
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Pods
+    pods:
+      metric:
+        name: trading_latency_p99
+      target:
+        type: AverageValue
+        averageValue: "1000"  # 1ms
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: noderr-core-network-policy
+  namespace: noderr-trading
+spec:
+  podSelector:
+    matchLabels:
+      app: noderr-core
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: noderr-trading
+    - podSelector:
+        matchLabels:
+          app: noderr-gateway
+    ports:
+    - protocol: TCP
+      port: 50051
+    - protocol: TCP
+      port: 9090
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: noderr-trading
+    ports:
+    - protocol: TCP
+      port: 6379  # Redis
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443   # HTTPS for external APIs
+    - protocol: TCP
+      port: 80    # HTTP
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53    # DNS 

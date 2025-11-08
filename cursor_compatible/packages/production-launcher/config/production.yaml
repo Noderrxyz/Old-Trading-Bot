@@ -1,0 +1,113 @@
+# Production Configuration for Noderr Protocol
+# This file contains sensitive information - ensure proper access control
+
+environment: production
+
+deployment:
+  region: us-east-1
+  datacenter: primary
+  redundancy: 3
+
+dataFeeds:
+  primary:
+    - id: binance-ws
+      type: WEBSOCKET
+      provider: Binance
+      url: wss://stream.binance.com:9443/ws
+      symbols: ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT"]
+      rateLimit: 5000
+      priority: 1
+    
+    - id: coinbase-rest
+      type: REST
+      provider: Coinbase
+      url: https://api.pro.coinbase.com
+      symbols: ["BTC-USD", "ETH-USD", "SOL-USD"]
+      rateLimit: 10
+      priority: 2
+    
+    - id: chainlink-oracle
+      type: ORACLE
+      provider: Chainlink
+      url: https://api.chain.link/v1/oracle
+      symbols: ["BTC/USD", "ETH/USD"]
+      rateLimit: 1
+      priority: 3
+  
+  backup:
+    - id: kraken-ws
+      type: WEBSOCKET
+      provider: Kraken
+      url: wss://ws.kraken.com
+      symbols: ["XBT/USD", "ETH/USD"]
+      rateLimit: 5000
+      priority: 4
+    
+    - id: coingecko-rest
+      type: REST
+      provider: CoinGecko
+      url: https://api.coingecko.com/api/v3
+      symbols: ["bitcoin", "ethereum", "solana"]
+      rateLimit: 2
+      priority: 5
+
+credentials:
+  exchanges:
+    binance:
+      apiKey: "${BINANCE_API_KEY}"
+      apiSecret: "${BINANCE_API_SECRET}"
+      testnet: false
+    
+    coinbase:
+      apiKey: "${COINBASE_API_KEY}"
+      apiSecret: "${COINBASE_API_SECRET}"
+      passphrase: "${COINBASE_PASSPHRASE}"
+      testnet: false
+    
+    kraken:
+      apiKey: "${KRAKEN_API_KEY}"
+      apiSecret: "${KRAKEN_API_SECRET}"
+      testnet: false
+  
+  databases:
+    timeseries:
+      host: timescale.internal.noderr.io
+      port: 5432
+      username: "${DB_USERNAME}"
+      password: "${DB_PASSWORD}"
+      database: noderr_production
+    
+    redis:
+      host: redis-cluster.internal.noderr.io
+      port: 6379
+      username: default
+      password: "${REDIS_PASSWORD}"
+      database: 0
+  
+  monitoring:
+    prometheus:
+      apiKey: "${PROMETHEUS_API_KEY}"
+      endpoint: http://prometheus.internal.noderr.io:9090
+    
+    grafana:
+      apiKey: "${GRAFANA_API_KEY}"
+      endpoint: http://grafana.internal.noderr.io:3000
+
+capital:
+  initialPercent: 1        # Start with 1% of capital
+  rampUpDuration: 3600000  # 1 hour to reach 100%
+  checkpoints: [5, 10, 25, 50, 75, 100]  # Validation checkpoints
+  maxAllocation: 1000000   # $1M max per strategy
+
+circuitBreakers:
+  maxDailyLoss: 0.05      # 5% daily loss limit
+  maxWeeklyLoss: 0.10     # 10% weekly loss limit
+  maxMonthlyLoss: 0.15    # 15% monthly loss limit
+  volatilityMultiplier: 2.0  # 2x normal volatility triggers
+  cooldownPeriod: 3600000    # 1 hour cooldown
+
+monitoring:
+  prometheusUrl: http://prometheus.internal.noderr.io:9090
+  grafanaUrl: http://grafana.internal.noderr.io:3000
+  alertingEnabled: true
+  slackWebhook: "${SLACK_WEBHOOK_URL}" 

@@ -1,0 +1,529 @@
+/**
+ * Dashboard Styles
+ * 
+ * Styles for the agent comparison dashboard
+ */
+
+/* Dashboard Layout */
+.agent-comparison-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: #333;
+  background-color: #f5f7fa;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.dashboard-content {
+  display: flex;
+  flex: 1;
+  padding: 1rem;
+  gap: 1.5rem;
+  overflow: hidden;
+}
+
+.dashboard-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Agent Selector */
+.agent-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selector-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.selector-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 1rem;
+}
+
+.selector-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 0.5rem;
+}
+
+.selector-search input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.selector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.selector-actions button {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.selector-actions button:hover {
+  background-color: #e5e5e5;
+}
+
+.agent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.agent-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.agent-group-header {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #666;
+  padding: 0.25rem 0;
+}
+
+.agent-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.agent-item:hover {
+  background-color: #f5f5f5;
+}
+
+.agent-item.selected {
+  background-color: #e1f5fe;
+}
+
+.agent-name {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.canary-indicator {
+  color: #ff9800;
+  margin-left: 0.25rem;
+}
+
+.no-agents {
+  padding: 1rem;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.selected-summary {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* Chart Type Selector */
+.chart-type-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chart-type-selector h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.chart-type-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chart-type-button {
+  flex: 1;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.chart-type-button:hover {
+  background-color: #e5e5e5;
+}
+
+.chart-type-button.active {
+  background-color: #2196f3;
+  color: white;
+  border-color: #2196f3;
+}
+
+/* Resolution Selector */
+.resolution-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resolution-selector h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.resolution-selector select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* Update Interval Selector */
+.update-interval-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.update-interval-selector h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.update-interval-selector select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* Time Range Selector */
+.time-range-selector {
+  display: flex;
+  align-items: center;
+}
+
+.range-options {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.range-option {
+  padding: 0.25rem 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.range-option:hover {
+  background-color: #e5e5e5;
+}
+
+.range-option.active {
+  background-color: #2196f3;
+  color: white;
+  border-color: #2196f3;
+}
+
+/* Chart */
+.chart-container {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.agent-chart {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chart-title {
+  margin: 0;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.no-agents-message,
+.no-data-message {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.agent-metrics-container {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.agent-name {
+  margin: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.canary-badge {
+  background-color: #ff9800;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.metrics-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+/* Metric Tile */
+.metric-tile {
+  background-color: #f9f9f9;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.metric-tile:hover {
+  transform: translateY(-2px);
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.metric-subtext {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.trend-indicator {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1rem;
+}
+
+.metric-tile.trend-up .metric-value {
+  color: #4caf50;
+}
+
+.metric-tile.trend-down .metric-value {
+  color: #f44336;
+}
+
+.metric-tile.highlight {
+  background-color: #fff3e0;
+}
+
+/* Agent Actions */
+.agent-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.agent-action-button {
+  flex: 1;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.agent-action-button:hover {
+  background-color: #e5e5e5;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem;
+  border-left: 4px solid #c62828;
+}
+
+/* Refresh Button */
+.refresh-button {
+  padding: 0.5rem 1rem;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.refresh-button:hover {
+  background-color: #1976d2;
+}
+
+.refresh-button:disabled {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.view-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1280px) {
+  .dashboard-content {
+    flex-direction: column;
+  }
+  
+  .dashboard-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .agent-selector {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .dashboard-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+} 

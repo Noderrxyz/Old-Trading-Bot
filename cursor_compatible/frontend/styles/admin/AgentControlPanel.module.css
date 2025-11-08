@@ -1,0 +1,182 @@
+/* Agent Control Panel Styles */
+
+.container {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.agentTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.agentTable th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background-color: #f5f5f7;
+  border-bottom: 2px solid #eaeaea;
+  font-weight: 600;
+  color: #333;
+}
+
+.agentTable td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eaeaea;
+  vertical-align: middle;
+}
+
+.agentRow {
+  transition: background-color 0.2s;
+}
+
+.agentRow:hover {
+  background-color: #f9f9fb;
+}
+
+.canaryRow {
+  background-color: #fff8e1;
+}
+
+.canaryRow:hover {
+  background-color: #ffecb3;
+}
+
+.pausedRow {
+  background-color: #f5f5f5;
+  color: #777;
+}
+
+.pausedRow:hover {
+  background-color: #eeeeee;
+}
+
+.agentId {
+  font-weight: 500;
+  position: relative;
+}
+
+.agentIdFull {
+  position: absolute;
+  font-size: 0.8rem;
+  color: #777;
+  display: block;
+  font-weight: normal;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusRunning {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.statusPaused {
+  background-color: #eeeeee;
+  color: #616161;
+}
+
+.statusCanary {
+  background-color: #fff8e1;
+  color: #f57c00;
+}
+
+.statusUnknown {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+}
+
+.pnlPositive {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.pnlNegative {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background-color: #e0e0e0;
+  color: #424242;
+  border-radius: 1rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.actionButton,
+.promoteButton,
+.restartButton,
+.configButton {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionButton {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.actionButton:hover {
+  background-color: #e0e0e0;
+}
+
+.promoteButton {
+  background-color: #4caf50;
+  color: white;
+  border-color: #43a047;
+}
+
+.promoteButton:hover {
+  background-color: #388e3c;
+}
+
+.restartButton {
+  background-color: #ff9800;
+  color: white;
+  border-color: #fb8c00;
+}
+
+.restartButton:hover {
+  background-color: #f57c00;
+}
+
+.configButton {
+  background-color: #2196f3;
+  color: white;
+  border-color: #1e88e5;
+}
+
+.configButton:hover {
+  background-color: #1976d2;
+} 

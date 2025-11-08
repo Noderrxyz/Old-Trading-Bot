@@ -1,0 +1,30 @@
+{
+  "timestamp": 1747251082279,
+  "systemMetrics": {
+    "uptimeSeconds": 720,
+    "operationsSinceStart": 0,
+    "errorCount": 12,
+    "checkpointCount": 15,
+    "tradesExecuted": 0,
+    "recoveryAttempts": 0,
+    "lastErrorTime": 1747251081243
+  },
+  "positions": [],
+  "openOrders": [],
+  "portfolio": {
+    "timestamp": "2025-05-14T19:31:22.279Z",
+    "cashBalance": 100000,
+    "positions": [],
+    "openOrders": [],
+    "portfolioValue": 100000,
+    "dayPnl": 0,
+    "totalPnl": 0
+  },
+  "executionHistory": [],
+  "priceCache": {
+    "BTC/USD": 51229.851078288506,
+    "ETH/USD": 2974.5757074654284,
+    "SOL/USD": 99.66456232867098
+  },
+  "pendingActions": []
+}

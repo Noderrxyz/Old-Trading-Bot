@@ -1,0 +1,89 @@
+# Multi-stage Dockerfile for Noderr Enhanced Packages
+
+# Stage 1: Base dependencies
+FROM node:20-alpine AS base
+RUN apk add --no-cache python3 make g++ git
+WORKDIR /app
+
+# Stage 2: Dependencies
+FROM base AS deps
+COPY package*.json ./
+COPY packages/*/package*.json ./packages/
+RUN npm ci --only=production
+
+# Stage 3: Build
+FROM base AS build
+COPY package*.json ./
+COPY packages/ ./packages/
+COPY tsconfig*.json ./
+COPY noderr_core/ ./noderr_core/
+RUN npm ci
+RUN npm run build -ws
+
+# Stage 4: Network Optimizer
+FROM node:20-alpine AS network-optimizer
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages/network-optimizer/dist ./packages/network-optimizer/dist
+COPY --from=build /app/packages/network-optimizer/package.json ./packages/network-optimizer/
+ENV NODE_ENV=production
+EXPOSE 8080
+CMD ["node", "packages/network-optimizer/dist/index.js"]
+
+# Stage 5: Telemetry Enhanced
+FROM node:20-alpine AS telemetry-enhanced
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages/telemetry-enhanced/dist ./packages/telemetry-enhanced/dist
+COPY --from=build /app/packages/telemetry-enhanced/package.json ./packages/telemetry-enhanced/
+ENV NODE_ENV=production
+EXPOSE 9090
+CMD ["node", "packages/telemetry-enhanced/dist/index.js"]
+
+# Stage 6: ML Enhanced (with GPU support)
+FROM tensorflow/tensorflow:latest-gpu AS ml-enhanced
+WORKDIR /app
+RUN apt-get update && apt-get install -y nodejs npm
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages/ml-enhanced/dist ./packages/ml-enhanced/dist
+COPY --from=build /app/packages/ml-enhanced/package.json ./packages/ml-enhanced/
+ENV NODE_ENV=production
+ENV CUDA_VISIBLE_DEVICES=0
+CMD ["node", "packages/ml-enhanced/dist/index.js"]
+
+# Stage 7: Execution Enhanced
+FROM node:20-alpine AS execution-enhanced
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages/execution-enhanced/dist ./packages/execution-enhanced/dist
+COPY --from=build /app/packages/execution-enhanced/package.json ./packages/execution-enhanced/
+ENV NODE_ENV=production
+EXPOSE 8081
+CMD ["node", "packages/execution-enhanced/dist/index.js"]
+
+# Stage 8: Chaos Enhanced
+FROM node:20-alpine AS chaos-enhanced
+WORKDIR /app
+RUN apk add --no-cache stress-ng iperf3 tc
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages/chaos-enhanced/dist ./packages/chaos-enhanced/dist
+COPY --from=build /app/packages/chaos-enhanced/package.json ./packages/chaos-enhanced/
+ENV NODE_ENV=production
+CMD ["node", "packages/chaos-enhanced/dist/index.js"]
+
+# Stage 9: Decentralized Core
+FROM node:20-alpine AS decentralized-core
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages/decentralized-core/dist ./packages/decentralized-core/dist
+COPY --from=build /app/packages/decentralized-core/package.json ./packages/decentralized-core/
+ENV NODE_ENV=production
+EXPOSE 4001 4002 4003
+CMD ["node", "packages/decentralized-core/dist/index.js"]
+
+# Stage 10: All-in-one development
+FROM base AS development
+COPY . .
+RUN npm ci
+EXPOSE 3000 8080 8081 9090 4001
+CMD ["npm", "run", "dev"] 

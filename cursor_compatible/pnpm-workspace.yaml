@@ -1,0 +1,47 @@
+packages:
+  # Core consolidated packages
+  - 'packages/types'
+  - 'packages/utils'
+  - 'packages/execution'
+  - 'packages/telemetry'
+  - 'packages/ml'
+  - 'packages/config'
+  
+  # Existing packages to keep
+  - 'packages/risk-engine'
+  - 'packages/market-intel'
+  - 'packages/integration-layer'
+  - 'packages/alpha-exploitation'
+  - 'packages/core'
+  - 'packages/strategy'
+  - 'packages/compliance'
+  - 'packages/safety-control'
+  - 'packages/deployment-pipeline'
+  - 'packages/readiness-validator'
+  - 'packages/performance-registry'
+  - 'packages/capital-management'
+  - 'packages/multi-asset'
+  - 'packages/data-connectors'
+  - 'packages/exchanges'
+  - 'packages/market-data'
+  - 'packages/backtesting'
+  - 'packages/testing'
+  
+  # Dashboard and tools
+  - 'packages/executive-dashboard'
+  - 'packages/elite-system-dashboard'
+  - 'packages/production-launcher'
+  - 'packages/chaos-suite'
+  - 'packages/network-optimizer'
+  - 'packages/decentralized-core'
+  
+  # Deprecated packages (to be archived)
+  # - 'packages/execution-engine'
+  # - 'packages/execution-enhanced'
+  # - 'packages/execution-optimizer'
+  # - 'packages/telemetry-layer'
+  # - 'packages/telemetry-enhanced'
+  # - 'packages/ai-core'
+  # - 'packages/ml-enhanced'
+  # - 'packages/ml-enhancement'
+  # - 'packages/model-expansion'

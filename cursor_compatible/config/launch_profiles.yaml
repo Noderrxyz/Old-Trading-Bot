@@ -1,0 +1,65 @@
+profiles:
+  local:
+    environment: local
+    telemetry:
+      enabled: true
+      level: debug
+    retry:
+      max_attempts: 3
+      delay_ms: 5000
+    logging:
+      level: debug
+      file: logs/launch_log.jsonl
+
+  staging:
+    environment: staging
+    telemetry:
+      enabled: true
+      level: info
+    retry:
+      max_attempts: 5
+      delay_ms: 10000
+    logging:
+      level: info
+      file: logs/launch_log.jsonl
+
+  production:
+    environment: production
+    telemetry:
+      enabled: true
+      level: warn
+    retry:
+      max_attempts: 3
+      delay_ms: 15000
+    logging:
+      level: warn
+      file: logs/launch_log.jsonl
+
+strategies:
+  top_performers:
+    count: 3
+    sort_by: trust_score
+    min_trust: 0.7
+    markets:
+      - ETH/USD
+      - BTC/USD
+
+  market_makers:
+    count: 2
+    type: market_maker
+    markets:
+      - ETH/USD
+      - BTC/USD
+    config:
+      spread: 0.001
+      min_size: 0.1
+
+  arbitrage:
+    count: 1
+    type: arbitrage
+    markets:
+      - ETH/USD
+      - BTC/USD
+    config:
+      min_profit: 0.002
+      max_slippage: 0.001 

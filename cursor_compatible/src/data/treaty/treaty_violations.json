@@ -1,0 +1,8 @@
+{
+  "violations": [],
+  "updatedAt": 1714147200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Storage for treaty violations and enforcement actions"
+  }
+} 

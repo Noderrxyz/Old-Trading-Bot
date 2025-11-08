@@ -1,0 +1,81 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1000
+    spike_limit_mib: 200
+  
+  # Add a resource attribute with the environment
+  resource:
+    attributes:
+      - key: environment
+        value: ${ENV:deployment.environment:dev}
+        action: upsert
+  
+  # Filter out health check spans to reduce noise
+  filter:
+    spans:
+      exclude:
+        match_type: regexp
+        attributes:
+          - key: http.url
+            value: ".*/health.*"
+
+exporters:
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+  
+  # Export to Elasticsearch for log correlation
+  elasticsearch:
+    endpoints: ["http://elasticsearch:9200"]
+    index: traces
+    
+  # Export metrics to Prometheus
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: noderr
+    
+  # Console exporter for debugging
+  logging:
+    loglevel: info
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  
+  pprof:
+    endpoint: 0.0.0.0:1777
+  
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource, filter]
+      exporters: [jaeger, elasticsearch, logging]
+    
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [prometheus, logging]
+    
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [elasticsearch, logging] 

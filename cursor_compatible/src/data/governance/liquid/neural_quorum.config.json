@@ -1,0 +1,49 @@
+{
+  "trustScoreWeight": 0.4,
+  "participationWeight": 0.3,
+  "recencyWeight": 0.2,
+  "delegationWeight": 0.1,
+  "minimumQuorum": 0.25,
+  "stabilizationWindowMs": 86400000,
+  "recalculationIntervalMs": 3600000,
+  "autoFinalize": true,
+  "enableRevoteOnFlip": true,
+  "minStabilityForFinalization": 0.75,
+  "recencyScoring": {
+    "maxAgeMs": 2592000000,
+    "halfLifeMs": 604800000,
+    "decayModel": "exponential"
+  },
+  "participationScoring": {
+    "windowSizeProposals": 20,
+    "minRequiredProposalsForHistory": 5,
+    "bonusForConsistency": 0.1
+  },
+  "trustScoring": {
+    "minTrustScore": 0.1,
+    "maxTrustScore": 1.0,
+    "defaultTrustScore": 0.5
+  },
+  "delegationSettings": {
+    "maxDelegationChainLength": 3,
+    "delegationDecayPerHop": 0.1,
+    "allowTransitiveDelegation": true
+  },
+  "domainSpecificSettings": {
+    "emergency": {
+      "minimumQuorum": 0.4,
+      "stabilizationWindowMs": 21600000,
+      "recalculationIntervalMs": 900000
+    },
+    "routine": {
+      "minimumQuorum": 0.2,
+      "stabilizationWindowMs": 172800000,
+      "recalculationIntervalMs": 7200000
+    }
+  },
+  "updatedAt": 1714147200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Configuration for the Neural Quorum Engine in liquid governance"
+  }
+} 

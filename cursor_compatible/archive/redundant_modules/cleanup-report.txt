@@ -1,0 +1,16 @@
+Cleanup Report - 2025-05-25 22:30:01
+================================================
+
+Archived Files:
+src/execution/ExecutionStrategyRouterJs.ts
+src/sim/ReplayEngine.ts
+src/simulation/replay_engine.ts
+src/simulation/historical_replay_engine.ts
+src/simulation/historical_market_replay_engine.ts
+src/simulation/HistoricalReplayEngine.ts
+
+Archived Packages:
+packages/system-vanguard
+packages/meta-governance
+
+Archive Location: archive/redundant_modules

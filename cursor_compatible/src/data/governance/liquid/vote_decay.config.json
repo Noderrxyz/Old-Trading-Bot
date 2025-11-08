@@ -1,0 +1,69 @@
+{
+  "defaultDecay": {
+    "model": "exponential",
+    "halfLifeMs": 259200000,
+    "minWeight": 0.1,
+    "parameters": {
+      "decayRate": 0.0000025
+    }
+  },
+  "models": {
+    "linear": {
+      "description": "Linear decay from full weight to zero",
+      "parameters": {
+        "decayRate": 0.00001
+      }
+    },
+    "exponential": {
+      "description": "Exponential decay using e^(-rate*t)",
+      "parameters": {
+        "decayRate": 0.0000025
+      }
+    },
+    "step": {
+      "description": "Stepwise decay at specific intervals",
+      "parameters": {
+        "steps": [
+          {"timeMs": 86400000, "multiplier": 0.9},
+          {"timeMs": 172800000, "multiplier": 0.7},
+          {"timeMs": 259200000, "multiplier": 0.5},
+          {"timeMs": 345600000, "multiplier": 0.3},
+          {"timeMs": 432000000, "multiplier": 0.1}
+        ]
+      }
+    },
+    "cliff": {
+      "description": "Sudden drop after grace period then slow decay",
+      "parameters": {
+        "cliffTimeMs": 172800000,
+        "cliffDropMultiplier": 0.6,
+        "postCliffDecayRate": 0.000001
+      }
+    }
+  },
+  "domainSpecificDecay": {
+    "emergency": {
+      "model": "cliff",
+      "halfLifeMs": 86400000,
+      "minWeight": 0.05,
+      "parameters": {
+        "cliffTimeMs": 43200000,
+        "cliffDropMultiplier": 0.5,
+        "postCliffDecayRate": 0.000002
+      }
+    },
+    "longTerm": {
+      "model": "exponential",
+      "halfLifeMs": 1209600000,
+      "minWeight": 0.2,
+      "parameters": {
+        "decayRate": 0.0000005
+      }
+    }
+  },
+  "updatedAt": 1714147200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Configuration for vote decay parameters in liquid governance"
+  }
+} 

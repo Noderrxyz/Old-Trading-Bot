@@ -1,0 +1,61 @@
+# Base Dockerfile for Noderr Protocol modules
+FROM node:20-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    git \
+    curl \
+    bash
+
+# Set working directory
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm@8
+
+# Copy package files
+COPY package.json pnpm-workspace.yaml ./
+COPY packages/*/package.json ./packages/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Build all packages
+RUN pnpm run build
+
+# Production stage
+FROM node:20-alpine AS production
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    tini
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application
+COPY --from=base --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=base --chown=nodejs:nodejs /app/packages ./packages
+COPY --from=base --chown=nodejs:nodejs /app/package.json ./
+
+# Switch to non-root user
+USER nodejs
+
+# Use tini for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1 

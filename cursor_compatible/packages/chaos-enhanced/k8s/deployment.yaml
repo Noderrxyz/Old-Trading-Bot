@@ -1,0 +1,486 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: noderr-trading
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: noderr-config
+  namespace: noderr-trading
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  PROMETHEUS_ENABLED: "true"
+  ENABLE_SMART_ROUTING: "true"
+  ENABLE_ORDER_SLICING: "true"
+  P2P_ENABLED: "true"
+  CHAOS_ENABLED: "false"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: noderr-secrets
+  namespace: noderr-trading
+type: Opaque
+stringData:
+  JWT_SECRET: "your-jwt-secret-here"
+  API_KEY: "your-api-key-here"
+  ALERT_WEBHOOK_URL: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-optimizer
+  namespace: noderr-trading
+  labels:
+    app: network-optimizer
+    component: networking
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: network-optimizer
+  template:
+    metadata:
+      labels:
+        app: network-optimizer
+        component: networking
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - network-optimizer
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: network-optimizer
+        image: noderr/network-optimizer:latest
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: noderr-config
+              key: NODE_ENV
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telemetry-enhanced
+  namespace: noderr-trading
+  labels:
+    app: telemetry-enhanced
+    component: monitoring
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: telemetry-enhanced
+  template:
+    metadata:
+      labels:
+        app: telemetry-enhanced
+        component: monitoring
+    spec:
+      containers:
+      - name: telemetry-enhanced
+        image: noderr/telemetry-enhanced:latest
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        env:
+        - name: PROMETHEUS_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: noderr-config
+              key: PROMETHEUS_ENABLED
+        - name: ALERT_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: noderr-secrets
+              key: ALERT_WEBHOOK_URL
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: telemetry-data
+          mountPath: /app/data
+      volumes:
+      - name: telemetry-data
+        persistentVolumeClaim:
+          claimName: telemetry-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-enhanced
+  namespace: noderr-trading
+  labels:
+    app: ml-enhanced
+    component: ml
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-enhanced
+  template:
+    metadata:
+      labels:
+        app: ml-enhanced
+        component: ml
+    spec:
+      nodeSelector:
+        gpu: "true"
+      containers:
+      - name: ml-enhanced
+        image: noderr/ml-enhanced:latest
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: TF_FORCE_GPU_ALLOW_GROWTH
+          value: "true"
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "4000m"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "16Gi"
+            cpu: "8000m"
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: ml-models
+          mountPath: /app/models
+        - name: ml-checkpoints
+          mountPath: /app/checkpoints
+      volumes:
+      - name: ml-models
+        persistentVolumeClaim:
+          claimName: ml-models-pvc
+      - name: ml-checkpoints
+        persistentVolumeClaim:
+          claimName: ml-checkpoints-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: execution-enhanced
+  namespace: noderr-trading
+  labels:
+    app: execution-enhanced
+    component: execution
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: execution-enhanced
+  template:
+    metadata:
+      labels:
+        app: execution-enhanced
+        component: execution
+    spec:
+      containers:
+      - name: execution-enhanced
+        image: noderr/execution-enhanced:latest
+        ports:
+        - containerPort: 8081
+          protocol: TCP
+        env:
+        - name: ENABLE_SMART_ROUTING
+          valueFrom:
+            configMapKeyRef:
+              name: noderr-config
+              key: ENABLE_SMART_ROUTING
+        - name: ENABLE_ORDER_SLICING
+          valueFrom:
+            configMapKeyRef:
+              name: noderr-config
+              key: ENABLE_ORDER_SLICING
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: chaos-enhanced
+  namespace: noderr-trading
+  labels:
+    app: chaos-enhanced
+    component: chaos
+spec:
+  selector:
+    matchLabels:
+      app: chaos-enhanced
+  template:
+    metadata:
+      labels:
+        app: chaos-enhanced
+        component: chaos
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: chaos-enhanced
+        image: noderr/chaos-enhanced:latest
+        env:
+        - name: CHAOS_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: noderr-config
+              key: CHAOS_ENABLED
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - NET_ADMIN
+            - SYS_ADMIN
+        volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: decentralized-core
+  namespace: noderr-trading
+  labels:
+    app: decentralized-core
+    component: p2p
+spec:
+  serviceName: decentralized-core
+  replicas: 3
+  selector:
+    matchLabels:
+      app: decentralized-core
+  template:
+    metadata:
+      labels:
+        app: decentralized-core
+        component: p2p
+    spec:
+      containers:
+      - name: decentralized-core
+        image: noderr/decentralized-core:latest
+        ports:
+        - containerPort: 4001
+          name: p2p
+        - containerPort: 4002
+          name: ws
+        - containerPort: 4003
+          name: metrics
+        env:
+        - name: P2P_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: noderr-config
+              key: P2P_ENABLED
+        - name: NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: p2p-data
+          mountPath: /app/data
+  volumeClaimTemplates:
+  - metadata:
+      name: p2p-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: network-optimizer
+  namespace: noderr-trading
+spec:
+  selector:
+    app: network-optimizer
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telemetry-enhanced
+  namespace: noderr-trading
+spec:
+  selector:
+    app: telemetry-enhanced
+  ports:
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: execution-enhanced
+  namespace: noderr-trading
+spec:
+  selector:
+    app: execution-enhanced
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: decentralized-core
+  namespace: noderr-trading
+spec:
+  clusterIP: None
+  selector:
+    app: decentralized-core
+  ports:
+  - port: 4001
+    name: p2p
+  - port: 4002
+    name: ws
+  - port: 4003
+    name: metrics
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: telemetry-pvc
+  namespace: noderr-trading
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ml-models-pvc
+  namespace: noderr-trading
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ml-checkpoints-pvc
+  namespace: noderr-trading
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: network-optimizer-hpa
+  namespace: noderr-trading
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: network-optimizer
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: execution-enhanced-hpa
+  namespace: noderr-trading
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: execution-enhanced
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Pods
+    pods:
+      metric:
+        name: orders_per_second
+      target:
+        type: AverageValue
+        averageValue: "1000" 

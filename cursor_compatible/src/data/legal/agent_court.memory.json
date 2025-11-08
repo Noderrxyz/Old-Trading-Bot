@@ -1,0 +1,8 @@
+{
+  "disputes": [],
+  "updatedAt": 1713463200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Storage for agent conduct disputes and resolution history"
+  }
+} 

@@ -1,0 +1,34 @@
+# This file defines who is responsible for reviewing changes to specific parts of the codebase.
+# Each line is a file pattern followed by one or more owners.
+
+# Default owners for everything
+*       @team-lead @senior-engineer
+
+# Core trading engine
+/src/core/                @engine-team @senior-engineer
+
+# Market data adapters
+/src/adapters/            @data-team @integration-team
+
+# Database migrations
+/migrations/              @db-team @devops-team
+
+# Frontend components
+/frontend/                @frontend-team
+
+# Deployment and infrastructure
+/k8s/                     @devops-team
+/dbops/                   @devops-team @db-team
+Dockerfile                @devops-team
+docker-compose.yml        @devops-team
+
+# Documentation
+/docs/                    @docs-team @all-engineers
+
+# Configuration
+/config/                  @devops-team @senior-engineer
+
+# CI/CD
+/.github/workflows/       @devops-team
+
+# Note: Replace placeholders with actual GitHub usernames or team slugs 

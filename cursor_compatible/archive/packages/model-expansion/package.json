@@ -1,0 +1,86 @@
+{
+  "name": "@noderr/model-expansion",
+  "version": "1.0.0",
+  "description": "Advanced AI/ML model expansion for elite 0.001% trading performance",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "benchmark": "ts-node benchmarks/run-all.ts",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "clean": "rm -rf dist coverage",
+    "prepublish": "npm run clean && npm run build && npm run test"
+  },
+  "keywords": [
+    "noderr",
+    "ai",
+    "ml",
+    "llm",
+    "reinforcement-learning",
+    "causal-ai",
+    "genetic-programming",
+    "trading",
+    "quant"
+  ],
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
+    "openai": "^4.28.0",
+    "@tensorflow/tfjs": "^4.17.0",
+    "@tensorflow/tfjs-node": "^4.17.0",
+    "onnxruntime-node": "^1.17.0",
+    "numerai": "^2.0.0",
+    "axios": "^1.6.7",
+    "lodash": "^4.17.21",
+    "mathjs": "^12.4.0",
+    "simple-statistics": "^7.8.3",
+    "ml-matrix": "^6.10.5",
+    "ml-regression": "^5.0.0",
+    "genetic-js": "^0.1.14",
+    "synaptic": "^1.1.4",
+    "brain.js": "^2.0.0-beta.23",
+    "joi": "^17.12.2",
+    "winston": "^3.11.0",
+    "dotenv": "^16.4.5",
+    "node-cache": "^5.1.2",
+    "p-queue": "^6.6.2",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/jest": "^29.5.12",
+    "@types/lodash": "^4.14.202",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "sinon": "^17.0.1",
+    "@types/sinon": "^17.0.3"
+  },
+  "peerDependencies": {
+    "@noderr/ai-core": "workspace:*",
+    "@noderr/alpha-exploitation": "workspace:*",
+    "@noderr/risk-engine": "workspace:*",
+    "@noderr/telemetry-layer": "workspace:*",
+    "@noderr/execution-optimizer": "workspace:*"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noderr/protocol.git",
+    "directory": "packages/model-expansion"
+  },
+  "license": "PROPRIETARY",
+  "private": true
+} 

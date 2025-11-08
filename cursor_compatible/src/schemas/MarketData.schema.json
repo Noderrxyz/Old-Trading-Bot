@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MarketData",
+  "type": "object",
+  "properties": {
+    "source": { "type": "string", "enum": ["L1_TICK", "L2_ORDERBOOK", "HISTORICAL", "ALTERNATIVE"] },
+    "symbol": { "type": "string" },
+    "timestamp": { "type": "integer" },
+    "type": { "type": "string", "enum": ["trade", "quote", "orderbook", "ohlcv", "altdata"] },
+    "data": { "type": "object" }
+  },
+  "required": ["source", "symbol", "timestamp", "type", "data"],
+  "additionalProperties": false
+} 

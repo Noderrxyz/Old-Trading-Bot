@@ -1,0 +1,681 @@
+{
+  "version": "1.0.0",
+  "dashboards": [
+    {
+      "uid": "noderr-overview",
+      "title": "Noderr Protocol - System Overview",
+      "description": "High-level system health and performance metrics",
+      "tags": ["noderr", "overview", "production"],
+      "panels": [
+        {
+          "id": "system-health",
+          "title": "System Health Score",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "(sum(up{job=\"noderr\"}) / count(up{job=\"noderr\"})) * 100",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 90 },
+                  { "color": "green", "value": 95 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "active-modules",
+          "title": "Active Modules",
+          "type": "stat",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "count(noderr_module_status == 1)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 8 },
+                  { "color": "green", "value": 11 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "total-uptime",
+          "title": "System Uptime",
+          "type": "stat",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "(time() - process_start_time_seconds{job=\"noderr\"}) / 86400",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "days",
+              "decimals": 1
+            }
+          }
+        },
+        {
+          "id": "error-rate",
+          "title": "Error Rate",
+          "type": "stat",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "sum(rate(noderr_errors_total[5m])) * 60",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "errors/min",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 10 },
+                  { "color": "red", "value": 50 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "request-rate-graph",
+          "title": "Request Rate",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(noderr_requests_total[5m])) by (module)",
+              "legendFormat": "{{module}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 10
+              }
+            }
+          }
+        },
+        {
+          "id": "latency-percentiles",
+          "title": "Latency Percentiles",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(noderr_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "p50",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(noderr_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "p95",
+              "refId": "B"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(noderr_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "p99",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-performance",
+      "title": "Noderr Protocol - Performance Metrics",
+      "description": "Detailed performance analysis and bottleneck identification",
+      "tags": ["noderr", "performance", "latency"],
+      "panels": [
+        {
+          "id": "execution-latency",
+          "title": "Execution Latency by Module",
+          "type": "heatmap",
+          "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(noderr_request_duration_seconds_bucket[5m])) by (module, le)",
+              "format": "heatmap",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": {
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "alpha-hit-rate",
+          "title": "Alpha Hit Rate",
+          "type": "gauge",
+          "gridPos": { "x": 0, "y": 8, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "(sum(rate(noderr_alpha_hits_total[5m])) / sum(rate(noderr_alpha_attempts_total[5m]))) * 100",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "green", "value": 80 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "sharpe-ratio",
+          "title": "Sharpe Ratio",
+          "type": "gauge",
+          "gridPos": { "x": 8, "y": 8, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "noderr_strategy_sharpe_ratio",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "decimals": 2,
+              "min": 0,
+              "max": 5,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 2 },
+                  { "color": "green", "value": 3.5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "ml-accuracy",
+          "title": "ML Model Accuracy",
+          "type": "gauge",
+          "gridPos": { "x": 16, "y": 8, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "avg(noderr_ml_model_accuracy) * 100",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 85 },
+                  { "color": "green", "value": 92 }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-resources",
+      "title": "Noderr Protocol - Resource Usage",
+      "description": "CPU, memory, network, and storage utilization",
+      "tags": ["noderr", "resources", "infrastructure"],
+      "panels": [
+        {
+          "id": "cpu-usage",
+          "title": "CPU Usage by Module",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_cpu_usage_percent by (module)",
+              "legendFormat": "{{module}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 20
+              }
+            }
+          }
+        },
+        {
+          "id": "memory-usage",
+          "title": "Memory Usage by Module",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_memory_usage_bytes by (module)",
+              "legendFormat": "{{module}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 20
+              }
+            }
+          }
+        },
+        {
+          "id": "active-connections",
+          "title": "Active Connections",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(noderr_active_connections) by (module)",
+              "legendFormat": "{{module}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth"
+              }
+            }
+          }
+        },
+        {
+          "id": "message-queue-size",
+          "title": "Message Queue Size",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(noderr_message_queue_size) by (module, priority)",
+              "legendFormat": "{{module}} - {{priority}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-trading",
+      "title": "Noderr Protocol - Trading Metrics",
+      "description": "Trading performance, execution quality, and market analysis",
+      "tags": ["noderr", "trading", "execution"],
+      "panels": [
+        {
+          "id": "trade-volume",
+          "title": "Trade Volume (24h)",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "sum(increase(noderr_trade_volume_usd[24h]))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 0
+            }
+          }
+        },
+        {
+          "id": "pnl-24h",
+          "title": "PnL (24h)",
+          "type": "stat",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "sum(noderr_pnl_usd)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 0 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "win-rate",
+          "title": "Win Rate",
+          "type": "stat",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "(sum(noderr_winning_trades) / sum(noderr_total_trades)) * 100",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1
+            }
+          }
+        },
+        {
+          "id": "slippage",
+          "title": "Average Slippage",
+          "type": "stat",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "avg(noderr_execution_slippage_bps)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 5 },
+                  { "color": "red", "value": 10 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "order-flow",
+          "title": "Order Flow Analysis",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(noderr_order_flow_buy[5m]))",
+              "legendFormat": "Buy Flow",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(rate(noderr_order_flow_sell[5m]))",
+              "legendFormat": "Sell Flow",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "orders/s",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 20
+              }
+            }
+          }
+        },
+        {
+          "id": "liquidity-depth",
+          "title": "Aggregated Liquidity Depth",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(noderr_liquidity_depth_usd) by (symbol, side)",
+              "legendFormat": "{{symbol}} - {{side}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 50
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-alerts",
+      "title": "Noderr Protocol - Alerts & Incidents",
+      "description": "Alert history, incident tracking, and system anomalies",
+      "tags": ["noderr", "alerts", "incidents"],
+      "panels": [
+        {
+          "id": "active-alerts",
+          "title": "Active Alerts",
+          "type": "table",
+          "gridPos": { "x": 0, "y": 0, "w": 24, "h": 6 },
+          "targets": [
+            {
+              "expr": "ALERTS{alertstate=\"firing\", job=\"noderr\"}",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "displayMode": "color-background"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "severity" },
+                "properties": [
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-text"
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      { "type": "value", "value": "critical", "color": "red" },
+                      { "type": "value", "value": "error", "color": "orange" },
+                      { "type": "value", "value": "warning", "color": "yellow" },
+                      { "type": "value", "value": "info", "color": "blue" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "alert-frequency",
+          "title": "Alert Frequency by Module",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 6, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(increase(noderr_alerts_triggered_total[1h])) by (module)",
+              "legendFormat": "{{module}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 50
+              }
+            }
+          }
+        },
+        {
+          "id": "anomaly-detection",
+          "title": "Anomaly Score",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 6, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_anomaly_score by (module)",
+              "legendFormat": "{{module}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "red", "value": 90 }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variables": [
+    {
+      "name": "module",
+      "type": "query",
+      "query": "label_values(noderr_requests_total, module)",
+      "multi": true,
+      "includeAll": true,
+      "current": {
+        "text": "All",
+        "value": "$__all"
+      }
+    },
+    {
+      "name": "environment",
+      "type": "query",
+      "query": "label_values(noderr_requests_total, environment)",
+      "multi": false,
+      "current": {
+        "text": "production",
+        "value": "production"
+      }
+    },
+    {
+      "name": "time_range",
+      "type": "interval",
+      "options": [
+        { "text": "5m", "value": "5m" },
+        { "text": "15m", "value": "15m" },
+        { "text": "30m", "value": "30m" },
+        { "text": "1h", "value": "1h" },
+        { "text": "6h", "value": "6h" },
+        { "text": "12h", "value": "12h" },
+        { "text": "24h", "value": "24h" },
+        { "text": "7d", "value": "7d" }
+      ],
+      "current": {
+        "text": "1h",
+        "value": "1h"
+      }
+    }
+  ],
+  "annotations": [
+    {
+      "name": "Deployments",
+      "datasource": "prometheus",
+      "enable": true,
+      "iconColor": "blue",
+      "query": "changes(noderr_deployment_info[5m]) > 0"
+    },
+    {
+      "name": "Incidents",
+      "datasource": "prometheus",
+      "enable": true,
+      "iconColor": "red",
+      "query": "ALERTS{severity=\"critical\", job=\"noderr\"}"
+    }
+  ]
+} 

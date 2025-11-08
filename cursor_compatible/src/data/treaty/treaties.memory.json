@@ -1,0 +1,8 @@
+{
+  "treaties": [],
+  "updatedAt": 1714147200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Storage for agent treaties and negotiations"
+  }
+} 

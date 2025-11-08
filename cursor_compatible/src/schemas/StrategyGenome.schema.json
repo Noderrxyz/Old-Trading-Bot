@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["id", "metrics", "metadata", "parameters"],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["sharpeRatio", "maxDrawdown", "winRate", "profitFactor"],
+      "properties": {
+        "sharpeRatio": {
+          "type": "number"
+        },
+        "maxDrawdown": {
+          "type": "number"
+        },
+        "winRate": {
+          "type": "number"
+        },
+        "profitFactor": {
+          "type": "number"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["createdAt", "lastUpdated", "version", "tags"],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "version": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value", "locked"],
+        "properties": {
+          "value": {
+            "type": ["number", "string", "boolean"]
+          },
+          "locked": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+} 

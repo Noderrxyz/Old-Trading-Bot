@@ -1,0 +1,21 @@
+weights:
+  pnl: 0.3
+  sharpe: 0.2
+  drawdown: 0.15
+  volatility: 0.1
+  trust: 0.15
+  regimeAlignment: 0.05
+  consistency: 0.05
+
+thresholds:
+  minTrust: 0.3
+  maxDrawdown: 0.2
+  maxVolatility: 0.3
+  minRegimeAlignment: 0.6
+  minConsistency: 0.5
+
+penalties:
+  volatilitySpike: 0.1
+  trustDrop: 0.2
+  regimeMismatch: 0.15
+  inconsistency: 0.1 

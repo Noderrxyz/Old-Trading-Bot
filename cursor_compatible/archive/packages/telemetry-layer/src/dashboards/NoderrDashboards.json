@@ -1,0 +1,1041 @@
+{
+  "version": "2.0.0",
+  "dashboards": [
+    {
+      "uid": "noderr-system-health",
+      "title": "Noderr Protocol - System Health",
+      "description": "Top-level system health monitoring and incident tracking",
+      "tags": ["noderr", "health", "production"],
+      "refresh": "5s",
+      "panels": [
+        {
+          "id": "system-health-overview",
+          "title": "System Health Overview",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_system_health_score{module=\"integration-layer\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 80 },
+                  { "color": "green", "value": 95 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "system-uptime",
+          "title": "System Uptime",
+          "type": "stat",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_system_uptime_seconds / 86400",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "days",
+              "decimals": 1
+            }
+          }
+        },
+        {
+          "id": "error-rate",
+          "title": "Error Rate",
+          "type": "stat",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_error_rate_percent",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "open-incidents",
+          "title": "Open Incidents",
+          "type": "stat",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_open_incidents_total{severity=\"all\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "module-health-table",
+          "title": "Module Health Status",
+          "type": "table",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_cpu_usage_percent",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            },
+            {
+              "expr": "noderr_memory_usage_bytes / 1024 / 1024",
+              "format": "table",
+              "instant": true,
+              "refId": "B"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "module": "Module",
+                  "Value #A": "CPU %",
+                  "Value #B": "Memory MB"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "cpu-memory-timeline",
+          "title": "Resource Usage Timeline",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_cpu_usage_percent",
+              "legendFormat": "{{module}} CPU",
+              "refId": "A"
+            },
+            {
+              "expr": "noderr_memory_usage_bytes / 1024 / 1024 / 10",
+              "legendFormat": "{{module}} Memory (MB/10)",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 10
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-strategy-ai",
+      "title": "Noderr Protocol - Strategy & AI Insights",
+      "description": "Alpha performance, ML model health, and signal quality",
+      "tags": ["noderr", "strategy", "ai", "ml"],
+      "refresh": "5s",
+      "panels": [
+        {
+          "id": "alpha-hit-rate",
+          "title": "Alpha Hit Rate",
+          "type": "gauge",
+          "gridPos": { "x": 0, "y": 0, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "noderr_alpha_hit_rate{module=\"alpha-exploitation\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "green", "value": 80 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "sharpe-ratio",
+          "title": "Sharpe Ratio",
+          "type": "gauge",
+          "gridPos": { "x": 8, "y": 0, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "noderr_sharpe_ratio{module=\"ai-core\",strategy=\"combined\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "decimals": 2,
+              "min": 0,
+              "max": 5,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 2 },
+                  { "color": "green", "value": 3.5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "ml-drift-heatmap",
+          "title": "ML Model Drift",
+          "type": "heatmap",
+          "gridPos": { "x": 16, "y": 0, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "noderr_ml_drift_score",
+              "format": "heatmap",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "model-accuracy-comparison",
+          "title": "Model Accuracy Comparison",
+          "type": "bar",
+          "gridPos": { "x": 0, "y": 6, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_model_accuracy",
+              "format": "instant",
+              "legendFormat": "{{model}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 85 },
+                  { "color": "green", "value": 92 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "signal-drift-timeline",
+          "title": "Signal Drift Over Time",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 6, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_signal_drift_score",
+              "legendFormat": "{{model}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 20
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 10 },
+                  { "color": "red", "value": 20 }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-execution",
+      "title": "Noderr Protocol - Execution & Order Routing",
+      "description": "Fill rates, slippage, latency, and venue performance",
+      "tags": ["noderr", "execution", "routing"],
+      "refresh": "5s",
+      "panels": [
+        {
+          "id": "fill-rate",
+          "title": "Fill Rate",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_fill_rate_percent{venue=\"all\",order_type=\"all\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 90 },
+                  { "color": "green", "value": 95 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "avg-slippage",
+          "title": "Average Slippage",
+          "type": "stat",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.5, sum(rate(noderr_slippage_bps_bucket[5m])) by (le))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 2 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "execution-latency-p99",
+          "title": "Execution Latency P99",
+          "type": "stat",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(noderr_execution_latency_ms_bucket[5m])) by (le))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "decimals": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 2 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "venue-comparison",
+          "title": "Venue Performance Comparison",
+          "type": "table",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "avg(noderr_execution_latency_ms) by (venue)",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "venue": "Venue",
+                  "Value": "Avg Latency (ms)"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "latency-distribution",
+          "title": "Execution Latency Distribution",
+          "type": "heatmap",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(noderr_execution_latency_ms_bucket[5m])) by (venue, le)",
+              "format": "heatmap",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "slippage-timeline",
+          "title": "Slippage Over Time",
+          "type": "graph",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.5, sum(rate(noderr_slippage_bps_bucket[5m])) by (venue, le))",
+              "legendFormat": "{{venue}} p50",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(noderr_slippage_bps_bucket[5m])) by (venue, le))",
+              "legendFormat": "{{venue}} p95",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-risk",
+      "title": "Noderr Protocol - Risk & Capital Allocation",
+      "description": "VaR, CVaR, volatility, position limits, and tail risk",
+      "tags": ["noderr", "risk", "capital"],
+      "refresh": "5s",
+      "panels": [
+        {
+          "id": "current-var",
+          "title": "Value at Risk (95%)",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_var_usd{confidence_level=\"95\",timeframe=\"1d\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": -100000 },
+                  { "color": "yellow", "value": -75000 },
+                  { "color": "red", "value": -50000 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "current-cvar",
+          "title": "Conditional VaR (95%)",
+          "type": "stat",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_cvar_usd{confidence_level=\"95\",timeframe=\"1d\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": -150000 },
+                  { "color": "yellow", "value": -100000 },
+                  { "color": "red", "value": -75000 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "realized-volatility",
+          "title": "Realized Volatility (30d)",
+          "type": "stat",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_realized_volatility{asset=\"portfolio\",timeframe=\"30d\"} * 100",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 30 },
+                  { "color": "red", "value": 50 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "current-drawdown",
+          "title": "Current Drawdown",
+          "type": "stat",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "targets": [
+            {
+              "expr": "noderr_drawdown_percent{portfolio=\"default\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 5 },
+                  { "color": "red", "value": 10 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "risk-metrics-timeline",
+          "title": "Risk Metrics Over Time",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_var_usd{confidence_level=\"95\",timeframe=\"1d\"}",
+              "legendFormat": "VaR 95%",
+              "refId": "A"
+            },
+            {
+              "expr": "noderr_cvar_usd{confidence_level=\"95\",timeframe=\"1d\"}",
+              "legendFormat": "CVaR 95%",
+              "refId": "B"
+            },
+            {
+              "expr": "noderr_drawdown_percent{portfolio=\"default\"} * -10000",
+              "legendFormat": "Drawdown Impact",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 20
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "uid": "noderr-pnl",
+      "title": "Noderr Protocol - Live P&L & Attribution",
+      "description": "Real-time P&L tracking, attribution by asset and strategy",
+      "tags": ["noderr", "pnl", "performance"],
+      "refresh": "5s",
+      "panels": [
+        {
+          "id": "pnl-24h-all",
+          "title": "24h P&L (All Modes)",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 0, "w": 8, "h": 4 },
+          "targets": [
+            {
+              "expr": "sum(noderr_pnl_24h)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 0 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "pnl-7d-all",
+          "title": "7d P&L (All Modes)",
+          "type": "stat",
+          "gridPos": { "x": 8, "y": 0, "w": 8, "h": 4 },
+          "targets": [
+            {
+              "expr": "sum(noderr_pnl_7d)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 0 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "pnl-30d-all",
+          "title": "30d P&L (All Modes)",
+          "type": "stat",
+          "gridPos": { "x": 16, "y": 0, "w": 8, "h": 4 },
+          "targets": [
+            {
+              "expr": "sum(noderr_pnl_30d)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 0 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "pnl-by-mode",
+          "title": "P&L by Mode (24h)",
+          "type": "bar",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+          "targets": [
+            {
+              "expr": "noderr_pnl_24h",
+              "legendFormat": "{{mode}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 0 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "pnl-by-asset",
+          "title": "P&L by Asset",
+          "type": "pie",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 },
+          "targets": [
+            {
+              "expr": "noderr_pnl_by_asset > 0",
+              "legendFormat": "{{asset}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "custom": {
+                "hideFrom": {
+                  "tooltip": false,
+                  "viz": false,
+                  "legend": false
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "pnl-timeline",
+          "title": "P&L Timeline Comparison",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 10, "w": 24, "h": 8 },
+          "targets": [
+            {
+              "expr": "noderr_pnl_24h{mode=\"live\"}",
+              "legendFormat": "Live",
+              "refId": "A"
+            },
+            {
+              "expr": "noderr_pnl_24h{mode=\"paper\"}",
+              "legendFormat": "Paper",
+              "refId": "B"
+            },
+            {
+              "expr": "noderr_pnl_24h{mode=\"backtest\"}",
+              "legendFormat": "Backtest",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 20
+              }
+            }
+          }
+        },
+        {
+          "id": "pnl-by-strategy",
+          "title": "P&L Attribution by Strategy",
+          "type": "table",
+          "gridPos": { "x": 0, "y": 18, "w": 24, "h": 6 },
+          "targets": [
+            {
+              "expr": "noderr_pnl_by_strategy",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "strategy": "Strategy",
+                  "Value": "P&L (USD)"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "field": "P&L (USD)",
+                    "desc": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "uid": "noderr-comparison",
+      "title": "Noderr Protocol - Backtest vs Paper vs Live",
+      "description": "Performance comparison across different execution modes",
+      "tags": ["noderr", "comparison", "analysis"],
+      "refresh": "5s",
+      "panels": [
+        {
+          "id": "pnl-overlay",
+          "title": "P&L Curve Overlay",
+          "type": "graph",
+          "gridPos": { "x": 0, "y": 0, "w": 24, "h": 10 },
+          "targets": [
+            {
+              "expr": "sum(noderr_pnl_24h{mode=\"live\"}) by (mode)",
+              "legendFormat": "Live Trading",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(noderr_pnl_24h{mode=\"paper\"}) by (mode)",
+              "legendFormat": "Paper Trading",
+              "refId": "B"
+            },
+            {
+              "expr": "sum(noderr_pnl_24h{mode=\"backtest\"}) by (mode)",
+              "legendFormat": "Backtest",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "fillOpacity": 10
+              }
+            }
+          }
+        },
+        {
+          "id": "consistency-score",
+          "title": "Consistency Score",
+          "type": "gauge",
+          "gridPos": { "x": 0, "y": 10, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "100 - (abs(noderr_pnl_24h{mode=\"live\"} - noderr_pnl_24h{mode=\"backtest\"}) / noderr_pnl_24h{mode=\"backtest\"} * 100)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 80 },
+                  { "color": "green", "value": 90 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "discrepancy-tracker",
+          "title": "P&L Discrepancy",
+          "type": "bar",
+          "gridPos": { "x": 8, "y": 10, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "abs(noderr_pnl_24h{mode=\"live\"} - noderr_pnl_24h{mode=\"backtest\"})",
+              "legendFormat": "Live vs Backtest",
+              "refId": "A"
+            },
+            {
+              "expr": "abs(noderr_pnl_24h{mode=\"paper\"} - noderr_pnl_24h{mode=\"backtest\"})",
+              "legendFormat": "Paper vs Backtest",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 1000 },
+                  { "color": "red", "value": 5000 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "volume-comparison",
+          "title": "Trade Volume Comparison",
+          "type": "stat",
+          "gridPos": { "x": 16, "y": 10, "w": 8, "h": 6 },
+          "targets": [
+            {
+              "expr": "sum(rate(noderr_requests_total{module=\"execution-optimizer\"}[1h])) by (mode)",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "renameByName": {
+                  "mode": "Mode",
+                  "Value": "Trades/Hour"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "folders": [
+    {
+      "uid": "noderr-admin",
+      "title": "Admin",
+      "dashboards": ["noderr-system-health", "noderr-risk", "noderr-comparison"]
+    },
+    {
+      "uid": "noderr-quant",
+      "title": "Quant",
+      "dashboards": ["noderr-strategy-ai", "noderr-pnl", "noderr-comparison"]
+    },
+    {
+      "uid": "noderr-ops",
+      "title": "Operations",
+      "dashboards": ["noderr-system-health", "noderr-execution"]
+    },
+    {
+      "uid": "noderr-stakeholder",
+      "title": "Stakeholder",
+      "dashboards": ["noderr-pnl"]
+    }
+  ],
+  "variables": [
+    {
+      "name": "environment",
+      "type": "query",
+      "query": "label_values(noderr_requests_total, environment)",
+      "multi": false,
+      "current": {
+        "text": "production",
+        "value": "production"
+      }
+    },
+    {
+      "name": "time_range",
+      "type": "interval",
+      "options": [
+        { "text": "5m", "value": "5m" },
+        { "text": "15m", "value": "15m" },
+        { "text": "1h", "value": "1h" },
+        { "text": "6h", "value": "6h" },
+        { "text": "24h", "value": "24h" },
+        { "text": "7d", "value": "7d" }
+      ],
+      "current": {
+        "text": "1h",
+        "value": "1h"
+      }
+    }
+  ],
+  "annotations": [
+    {
+      "name": "Deployments",
+      "datasource": "prometheus",
+      "enable": true,
+      "iconColor": "blue",
+      "query": "changes(noderr_deployment_info[5m]) > 0"
+    },
+    {
+      "name": "Incidents",
+      "datasource": "prometheus",
+      "enable": true,
+      "iconColor": "red",
+      "query": "noderr_open_incidents_total > 0"
+    },
+    {
+      "name": "Model Changes",
+      "datasource": "prometheus",
+      "enable": true,
+      "iconColor": "purple",
+      "query": "increase(noderr_model_swap_frequency[5m]) > 0"
+    }
+  ]
+} 

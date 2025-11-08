@@ -1,0 +1,145 @@
+export interface GovernanceParameter<T> {
+  key: string;
+  domain: ParameterDomain;
+  value: T;
+  defaultValue: T;
+  description: string;
+  lastUpdated: number;
+  minValue?: number;
+  maxValue?: number;
+  options?: string[];
+  chainId?: ChainId;
+  version: number;
+  updatedBy: string;
+  updateTxHash?: string;
+  dataType: 'number' | 'string' | 'boolean' | 'object' | 'array';
+  requiresTimelock: boolean;
+  timelockPeriodMs: number;
+  pendingValue?: T;
+  pendingUpdateTime?: number;
+}
+
+public async setParameter<T>(
+  key: string,
+  value: T,
+  updatedBy: string,
+  options: {
+    description?: string;
+    requiresTimelock?: boolean;
+    timelockPeriodMs?: number;
+    domain?: ParameterDomain;
+    chainId?: ChainId;
+    updateTxHash?: string;
+  } = {}
+): Promise<void> {
+  const existingParameter = this.parameters.get(key);
+  
+  if (existingParameter) {
+    // Parameter exists, update it
+    if (existingParameter.requiresTimelock) {
+      const timelockPeriod = options.timelockPeriodMs || existingParameter.timelockPeriodMs;
+      
+      // Schedule the update after timelock period
+      this.pendingUpdates.set(key, {
+        value,
+        executeAfter: Date.now() + timelockPeriod
+      });
+      
+      // Update pending value
+      const updatedParameter = {
+        ...existingParameter,
+        pendingValue: value,
+        pendingUpdateTime: Date.now() + timelockPeriod,
+        updatedBy,
+        updateTxHash: options.updateTxHash
+      };
+      
+      this.parameters.set(key, updatedParameter);
+      
+      // Persist to storage
+      await this.redisService.set(
+        `governance:parameter:${key}`,
+        JSON.stringify(updatedParameter)
+      );
+      
+      this.eventEmitter.emit('parameter:pending', { key, value, executeAfter: Date.now() + timelockPeriod });
+      
+      console.log(`Parameter ${key} update scheduled with ${timelockPeriod}ms timelock`);
+    } else {
+      // Apply immediately if no timelock required
+      await this.applyParameterUpdate(key, value, updatedBy, options.updateTxHash);
+    }
+  } else {
+    // Create new parameter
+    const requiresTimelock = options.requiresTimelock !== undefined ? options.requiresTimelock : false;
+    const timelockPeriodMs = options.timelockPeriodMs || this.config.defaultTimelockPeriodMs;
+    const domain = options.domain || ParameterDomain.GOVERNANCE;
+    
+    const newParameter: GovernanceParameter<T> = {
+      key,
+      domain,
+      value,
+      defaultValue: value,
+      description: options.description || key,
+      lastUpdated: Date.now(),
+      version: 1,
+      updatedBy,
+      updateTxHash: options.updateTxHash,
+      dataType: typeof value === 'number' ? 'number' :
+                typeof value === 'string' ? 'string' :
+                typeof value === 'boolean' ? 'boolean' :
+                Array.isArray(value) ? 'array' : 'object',
+      requiresTimelock,
+      timelockPeriodMs,
+      chainId: options.chainId
+    };
+    
+    this.parameters.set(key, newParameter);
+    
+    // Persist to storage
+    await this.redisService.set(
+      `governance:parameter:${key}`,
+      JSON.stringify(newParameter)
+    );
+    
+    this.eventEmitter.emit('parameter:created', { key, parameter: newParameter });
+    
+    console.log(`Created new parameter ${key}`);
+  }
+}
+
+/**
+ * Apply a parameter update immediately
+ */
+private async applyParameterUpdate<T>(key: string, value: T, updatedBy?: string, updateTxHash?: string): Promise<void> {
+  const parameter = this.parameters.get(key) as GovernanceParameter<T> | undefined;
+  
+  if (!parameter) {
+    throw new Error(`Parameter ${key} not found`);
+  }
+  
+  // Update the parameter
+  const updatedParameter: GovernanceParameter<T> = {
+    ...parameter,
+    value,
+    lastUpdated: Date.now(),
+    version: parameter.version + 1,
+    updatedBy: updatedBy || parameter.updatedBy,
+    updateTxHash: updateTxHash || parameter.updateTxHash,
+    pendingValue: undefined,
+    pendingUpdateTime: undefined
+  };
+  
+  this.parameters.set(key, updatedParameter);
+  
+  // Persist to storage
+  await this.redisService.set(
+    `governance:parameter:${key}`,
+    JSON.stringify(updatedParameter)
+  );
+  
+  // Emit event
+  this.eventEmitter.emit('parameter:updated', { key, value, previousValue: parameter.value });
+  
+  console.log(`Parameter ${key} updated to ${JSON.stringify(value)}`);
+}

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noderr Protocol - Elite 0.001% Trading Organism Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px 40px;
+            border-bottom: 2px solid #00ff88;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 255, 136, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
+            }
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .widget {
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .widget:hover {
+            border-color: rgba(0, 255, 136, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
+        }
+        
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .widget-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00ff88;
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+        
+        .strategy-list {
+            list-style: none;
+        }
+        
+        .strategy-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border-left: 3px solid transparent;
+        }
+        
+        .strategy-item.active {
+            border-left-color: #00ff88;
+        }
+        
+        .strategy-item.warning {
+            border-left-color: #ff9800;
+        }
+        
+        .strategy-item.danger {
+            border-left-color: #f44336;
+        }
+        
+        .deployment-stage {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .stage-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            position: relative;
+        }
+        
+        .stage-dot.completed {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .stage-dot.active {
+            background: #00d4ff;
+            color: #000;
+            animation: pulse 2s infinite;
+        }
+        
+        .stage-line {
+            flex: 1;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stage-line.completed {
+            background: #00ff88;
+        }
+        
+        .circuit-breaker {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .breaker-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .breaker-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        
+        .breaker-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .alert-box {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .alert-box.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .full-width {
+            grid-column: span 3;
+        }
+        
+        .two-columns {
+            grid-column: span 2;
+        }
+        
+        .regime-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .regime-bull {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .regime-bear {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .regime-sideways {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        
+        .regime-high-vol {
+            background: rgba(156, 39, 176, 0.2);
+            color: #9c27b0;
+        }
+        
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+        
+        .heatmap-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="logo">NODERR PROTOCOL - ELITE 0.001%</div>
+        <div class="status-indicator">
+            <span>AUTONOMOUS TRADING ORGANISM</span>
+            <div class="status-dot"></div>
+            <span id="system-status">OPERATIONAL</span>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <!-- System Overview -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">System Overview</h3>
+                <span class="regime-indicator regime-sideways" id="market-regime">SIDEWAYS</span>
+            </div>
+            <div class="metric-value" id="total-aum">$0.00M</div>
+            <div class="metric-label">Total AUM</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="capital-deployed" style="width: 0%"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
+                <span>Capital Deployed</span>
+                <span id="capital-percent">0%</span>
+            </div>
+        </div>
+        
+        <!-- Governance Status -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">Meta-Governance</h3>
+            </div>
+            <div class="metric-value" id="active-strategies">0</div>
+            <div class="metric-label">Active Strategies</div>
+            <div style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span style="color: #888;">AI Confidence</span>
+                    <span id="ai-confidence">0%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span style="color: #888;">Decisions Today</span>
+                    <span id="decisions-today">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span style="color: #888;">Voting Consensus</span>
+                    <span id="voting-consensus">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Metrics -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">Performance</h3>
+            </div>
+            <div class="metric-value" id="portfolio-sharpe">0.00</div>
+            <div class="metric-label">Portfolio Sharpe Ratio</div>
+            <div style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span style="color: #888;">24h P&L</span>
+                    <span id="daily-pnl" style="color: #00ff88;">+$0.00</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span style="color: #888;">Max Drawdown</span>
+                    <span id="max-drawdown">0.0%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span style="color: #888;">Win Rate</span>
+                    <span id="win-rate">0.0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Strategy Performance -->
+        <div class="widget two-columns">
+            <div class="widget-header">
+                <h3 class="widget-title">Strategy Performance</h3>
+            </div>
+            <ul class="strategy-list" id="strategy-list">
+                <!-- Strategies will be populated here -->
+            </ul>
+        </div>
+        
+        <!-- Circuit Breakers -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">Circuit Breakers</h3>
+            </div>
+            <div class="circuit-breaker">
+                <div class="breaker-item">
+                    <div class="breaker-value" id="cb-drawdown">12%</div>
+                    <div class="breaker-label">Max Drawdown</div>
+                </div>
+                <div class="breaker-item">
+                    <div class="breaker-value" id="cb-var">8%</div>
+                    <div class="breaker-label">VaR Limit</div>
+                </div>
+                <div class="breaker-item">
+                    <div class="breaker-value" id="cb-daily-loss">5%</div>
+                    <div class="breaker-label">Daily Loss</div>
+                </div>
+                <div class="breaker-item">
+                    <div class="breaker-value" id="cb-ai-conf">80%</div>
+                    <div class="breaker-label">Min AI Conf</div>
+                </div>
+            </div>
+            <div class="alert-box" id="emergency-alert">
+                <strong>⚠️ EMERGENCY:</strong> <span id="emergency-message"></span>
+            </div>
+        </div>
+        
+        <!-- Deployment Pipeline -->
+        <div class="widget full-width">
+            <div class="widget-header">
+                <h3 class="widget-title">Autonomous Deployment Pipeline</h3>
+            </div>
+            <div id="deployment-stages">
+                <!-- Deployment stages will be populated here -->
+            </div>
+        </div>
+        
+        <!-- Capital Allocation Heatmap -->
+        <div class="widget two-columns">
+            <div class="widget-header">
+                <h3 class="widget-title">Capital Allocation Heatmap</h3>
+            </div>
+            <div class="heatmap" id="allocation-heatmap">
+                <!-- Heatmap cells will be populated here -->
+            </div>
+        </div>
+        
+        <!-- System Logs -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">System Events</h3>
+            </div>
+            <div id="event-log" style="max-height: 300px; overflow-y: auto;">
+                <!-- Events will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // WebSocket connection for real-time updates
+        let ws = null;
+        
+        // Mock data generator for demonstration
+        class MockDataGenerator {
+            constructor() {
+                this.strategies = [
+                    { id: 'mom_001', name: 'Momentum Alpha', status: 'active', sharpe: 2.1, pnl: 125000 },
+                    { id: 'rev_001', name: 'Mean Reversion Beta', status: 'active', sharpe: 1.8, pnl: 87000 },
+                    { id: 'arb_001', name: 'Statistical Arbitrage', status: 'active', sharpe: 3.2, pnl: 156000 },
+                    { id: 'mm_001', name: 'Market Making Delta', status: 'warning', sharpe: 1.2, pnl: -12000 }
+                ];
+                
+                this.deploymentStages = ['DEV', 'BACKTEST', 'PAPER', 'CANARY', 'PRODUCTION'];
+                this.marketRegimes = ['BULL', 'BEAR', 'SIDEWAYS', 'HIGH_VOL', 'LOW_VOL'];
+            }
+            
+            generateUpdate() {
+                return {
+                    system: {
+                        totalAUM: 10000000 + Math.random() * 2000000,
+                        deployedCapital: 0.85 + Math.random() * 0.10,
+                        activeStrategies: this.strategies.filter(s => s.status === 'active').length,
+                        aiConfidence: 0.80 + Math.random() * 0.15,
+                        decisionsToday: Math.floor(Math.random() * 50),
+                        votingConsensus: 0.75 + Math.random() * 0.20
+                    },
+                    performance: {
+                        sharpeRatio: 1.5 + Math.random() * 1.0,
+                        dailyPnL: -50000 + Math.random() * 150000,
+                        maxDrawdown: Math.random() * 0.08,
+                        winRate: 0.45 + Math.random() * 0.20
+                    },
+                    marketRegime: {
+                        type: this.marketRegimes[Math.floor(Math.random() * this.marketRegimes.length)],
+                        confidence: 0.7 + Math.random() * 0.3
+                    },
+                    strategies: this.strategies.map(s => ({
+                        ...s,
+                        sharpe: s.sharpe + (Math.random() - 0.5) * 0.2,
+                        pnl: s.pnl + (Math.random() - 0.5) * 10000
+                    })),
+                    deployment: {
+                        activeDeployment: Math.random() > 0.7 ? {
+                            strategyId: 'new_strategy',
+                            stage: this.deploymentStages[Math.floor(Math.random() * this.deploymentStages.length)],
+                            progress: Math.random() * 100
+                        } : null
+                    },
+                    events: [
+                        { time: new Date().toLocaleTimeString(), message: 'Signal elected: BTC-USD LONG', type: 'info' },
+                        { time: new Date().toLocaleTimeString(), message: 'Rebalancing triggered', type: 'warning' }
+                    ]
+                };
+            }
+        }
+        
+        const mockData = new MockDataGenerator();
+        
+        // Update functions
+        function updateDashboard(data) {
+            // System Overview
+            document.getElementById('total-aum').textContent = `$${(data.system.totalAUM / 1000000).toFixed(2)}M`;
+            document.getElementById('capital-deployed').style.width = `${data.system.deployedCapital * 100}%`;
+            document.getElementById('capital-percent').textContent = `${(data.system.deployedCapital * 100).toFixed(1)}%`;
+            
+            // Governance
+            document.getElementById('active-strategies').textContent = data.system.activeStrategies;
+            document.getElementById('ai-confidence').textContent = `${(data.system.aiConfidence * 100).toFixed(1)}%`;
+            document.getElementById('decisions-today').textContent = data.system.decisionsToday;
+            document.getElementById('voting-consensus').textContent = `${(data.system.votingConsensus * 100).toFixed(1)}%`;
+            
+            // Performance
+            document.getElementById('portfolio-sharpe').textContent = data.performance.sharpeRatio.toFixed(2);
+            const pnlElement = document.getElementById('daily-pnl');
+            pnlElement.textContent = `${data.performance.dailyPnL >= 0 ? '+' : ''}$${Math.abs(data.performance.dailyPnL).toFixed(0)}`;
+            pnlElement.style.color = data.performance.dailyPnL >= 0 ? '#00ff88' : '#f44336';
+            document.getElementById('max-drawdown').textContent = `${(data.performance.maxDrawdown * 100).toFixed(1)}%`;
+            document.getElementById('win-rate').textContent = `${(data.performance.winRate * 100).toFixed(1)}%`;
+            
+            // Market Regime
+            const regimeElement = document.getElementById('market-regime');
+            regimeElement.textContent = data.marketRegime.type;
+            regimeElement.className = `regime-indicator regime-${data.marketRegime.type.toLowerCase().replace('_', '-')}`;
+            
+            // Update strategies
+            updateStrategyList(data.strategies);
+            
+            // Update deployment pipeline
+            if (data.deployment.activeDeployment) {
+                updateDeploymentPipeline(data.deployment.activeDeployment);
+            }
+            
+            // Update events
+            updateEventLog(data.events);
+            
+            // Update heatmap
+            updateAllocationHeatmap(data.strategies);
+        }
+        
+        function updateStrategyList(strategies) {
+            const list = document.getElementById('strategy-list');
+            list.innerHTML = strategies.map(s => `
+                <li class="strategy-item ${s.status}">
+                    <div>
+                        <strong>${s.name}</strong>
+                        <div style="font-size: 12px; color: #888;">Sharpe: ${s.sharpe.toFixed(2)}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: ${s.pnl >= 0 ? '#00ff88' : '#f44336'}">
+                            ${s.pnl >= 0 ? '+' : ''}$${Math.abs(s.pnl).toFixed(0)}
+                        </div>
+                        <div style="font-size: 12px; color: #888;">${s.status}</div>
+                    </div>
+                </li>
+            `).join('');
+        }
+        
+        function updateDeploymentPipeline(deployment) {
+            const stages = ['DEV', 'BACKTEST', 'PAPER', 'CANARY', 'PRODUCTION'];
+            const currentIndex = stages.indexOf(deployment.stage);
+            
+            const container = document.getElementById('deployment-stages');
+            container.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <strong>Deploying:</strong> ${deployment.strategyId} 
+                    <span style="float: right;">${deployment.progress.toFixed(1)}%</span>
+                </div>
+                <div class="deployment-stage">
+                    ${stages.map((stage, i) => `
+                        <div class="stage-dot ${i < currentIndex ? 'completed' : i === currentIndex ? 'active' : ''}">${i + 1}</div>
+                        ${i < stages.length - 1 ? `<div class="stage-line ${i < currentIndex ? 'completed' : ''}"></div>` : ''}
+                    `).join('')}
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px;">
+                    ${stages.map(stage => `<span style="color: #888;">${stage}</span>`).join('')}
+                </div>
+            `;
+        }
+        
+        function updateEventLog(events) {
+            const log = document.getElementById('event-log');
+            const newEvents = events.map(e => `
+                <div style="padding: 5px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <span style="color: #888; font-size: 12px;">${e.time}</span>
+                    <span style="margin-left: 10px; color: ${e.type === 'warning' ? '#ff9800' : '#00ff88'}">
+                        ${e.message}
+                    </span>
+                </div>
+            `).join('');
+            
+            log.innerHTML = newEvents + log.innerHTML;
+            
+            // Keep only last 20 events
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+        
+        function updateAllocationHeatmap(strategies) {
+            const heatmap = document.getElementById('allocation-heatmap');
+            const totalCells = 20;
+            const allocations = strategies.map(s => ({
+                name: s.id,
+                value: Math.random() * 30
+            }));
+            
+            heatmap.innerHTML = Array(totalCells).fill(0).map((_, i) => {
+                const value = Math.random();
+                const intensity = Math.floor(value * 255);
+                const color = value > 0.7 ? `rgb(${255 - intensity}, 255, ${255 - intensity})` :
+                             value > 0.3 ? `rgb(255, ${255 - intensity}, 0)` :
+                             `rgb(255, ${intensity}, ${intensity})`;
+                
+                return `<div class="heatmap-cell" style="background: ${color};" title="${(value * 100).toFixed(1)}%"></div>`;
+            }).join('');
+        }
+        
+        // Initialize WebSocket connection
+        function connectWebSocket() {
+            // In production, connect to actual WebSocket server
+            // ws = new WebSocket('ws://localhost:8080/elite-dashboard');
+            
+            // For demo, use mock data
+            setInterval(() => {
+                const data = mockData.generateUpdate();
+                updateDashboard(data);
+            }, 2000);
+        }
+        
+        // Emergency alerts
+        function showEmergencyAlert(message) {
+            const alertBox = document.getElementById('emergency-alert');
+            const messageElement = document.getElementById('emergency-message');
+            
+            messageElement.textContent = message;
+            alertBox.classList.add('active');
+            
+            setTimeout(() => {
+                alertBox.classList.remove('active');
+            }, 10000);
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial update
+            updateDashboard(mockData.generateUpdate());
+            
+            // Connect to real-time updates
+            connectWebSocket();
+            
+            // Simulate occasional emergency
+            setInterval(() => {
+                if (Math.random() > 0.95) {
+                    showEmergencyAlert('Circuit breaker triggered - Drawdown exceeds 12%');
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,47 @@
+{
+  "name": "@noderr/market-intel",
+  "version": "1.0.0",
+  "description": "Institutional-grade market intelligence module for Noderr Protocol",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint . --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.10.0",
+    "events": "^3.3.0",
+    "winston": "^3.10.0",
+    "ws": "^8.13.0",
+    "axios": "^1.4.0",
+    "node-cache": "^5.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.5",
+    "@types/ws": "^8.5.5",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "eslint": "^8.45.0",
+    "jest": "^29.6.1",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.1.6"
+  },
+  "peerDependencies": {
+    "@noderr/core": "workspace:*"
+  },
+  "keywords": [
+    "trading",
+    "market-intelligence",
+    "orderflow",
+    "sentiment-analysis",
+    "on-chain-analytics",
+    "macro-data",
+    "crypto",
+    "institutional",
+    "defi"
+  ],
+  "author": "Noderr Protocol",
+  "license": "MIT"
+} 

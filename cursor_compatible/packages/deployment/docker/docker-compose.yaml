@@ -1,0 +1,199 @@
+version: '3.9'
+
+services:
+  # Integration Layer - Central orchestrator
+  integration-layer:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.integration
+    container_name: noderr-integration
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+    networks:
+      - noderr-network
+    depends_on:
+      - prometheus
+      - loki
+      - grafana
+    restart: unless-stopped
+
+  # Risk Engine
+  risk-engine:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.module
+      args:
+        MODULE: risk-engine
+    container_name: noderr-risk-engine
+    environment:
+      - NODE_ENV=production
+      - MODULE_NAME=risk-engine
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Market Intelligence
+  market-intelligence:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.module
+      args:
+        MODULE: market-intelligence
+    container_name: noderr-market-intelligence
+    environment:
+      - NODE_ENV=production
+      - MODULE_NAME=market-intelligence
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Execution Optimizer
+  execution-optimizer:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.module
+      args:
+        MODULE: execution-optimizer
+    container_name: noderr-execution-optimizer
+    environment:
+      - NODE_ENV=production
+      - MODULE_NAME=execution-optimizer
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # AI Core
+  ai-core:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.module
+      args:
+        MODULE: ai-core
+    container_name: noderr-ai-core
+    environment:
+      - NODE_ENV=production
+      - MODULE_NAME=ai-core
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # System Vanguard
+  system-vanguard:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.module
+      args:
+        MODULE: system-vanguard
+    container_name: noderr-system-vanguard
+    environment:
+      - NODE_ENV=production
+      - MODULE_NAME=system-vanguard
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Quant Research
+  quant-research:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.module
+      args:
+        MODULE: quant-research
+    container_name: noderr-quant-research
+    environment:
+      - NODE_ENV=production
+      - MODULE_NAME=quant-research
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Telemetry Layer
+  telemetry-layer:
+    build:
+      context: ../..
+      dockerfile: packages/deployment/docker/Dockerfile.module
+      args:
+        MODULE: telemetry-layer
+    container_name: noderr-telemetry
+    environment:
+      - NODE_ENV=production
+      - MODULE_NAME=telemetry-layer
+      - PROMETHEUS_ENDPOINT=http://prometheus:9090
+      - LOKI_ENDPOINT=http://loki:3100
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: noderr-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: noderr-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: noderr-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=noderr123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+  # Redis (for caching and pub/sub)
+  redis:
+    image: redis:7-alpine
+    container_name: noderr-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - noderr-network
+    restart: unless-stopped
+
+networks:
+  noderr-network:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  loki-data:
+  grafana-data:
+  redis-data: 

@@ -1,0 +1,13 @@
+{
+  "proposals": [],
+  "votes": [],
+  "delegations": [],
+  "neuralPaths": [],
+  "participationStats": {},
+  "snapshots": {},
+  "updatedAt": 1714147200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Memory storage for the neural trust flow in liquid governance"
+  }
+} 

@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules from alert file
+rule_files:
+  - "alerts.yml"
+
+# Scrape targets
+scrape_configs:
+  # Noderr Trading Bot metrics
+  - job_name: "noderr_trading_bot"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["noderr:3000"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: noderr
+      - source_labels: [__address__]
+        target_label: env
+        replacement: production
+
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"] 

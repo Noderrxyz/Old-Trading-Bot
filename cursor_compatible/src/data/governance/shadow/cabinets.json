@@ -1,0 +1,8 @@
+{
+  "cabinets": [],
+  "updatedAt": 1714147200000,
+  "schema": {
+    "version": "1.0",
+    "description": "Storage for shadow cabinet configurations"
+  }
+} 

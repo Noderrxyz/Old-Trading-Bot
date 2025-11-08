@@ -1,0 +1,101 @@
+{
+  "exportMetadata": {
+    "timestamp": "2024-12-20T00:00:00Z",
+    "period": "24 hours",
+    "environment": "staging",
+    "version": "1.0.0"
+  },
+  "performanceMetrics": {
+    "pnl": {
+      "total": 1425.59,
+      "realized": 1200.45,
+      "unrealized": 225.14,
+      "fees": -89.32
+    },
+    "returns": {
+      "daily": 0.00285,
+      "sharpe": 2.84,
+      "sortino": 3.21,
+      "calmar": 4.56
+    },
+    "trades": {
+      "total": 1052,
+      "winners": 618,
+      "losers": 434,
+      "winRate": 0.587,
+      "avgWin": 8.45,
+      "avgLoss": -5.21,
+      "profitFactor": 2.23
+    }
+  },
+  "systemHealth": {
+    "uptime": 1.0,
+    "latency": {
+      "p50": 32.5,
+      "p95": 89.2,
+      "p99": 105.0,
+      "max": 215.3
+    },
+    "throughput": {
+      "ordersPerSecond": 45.2,
+      "dataPointsPerSecond": 1250,
+      "alertsTriggered": 0
+    },
+    "resources": {
+      "cpuUsage": 0.42,
+      "memoryUsage": 0.68,
+      "diskIO": 0.15,
+      "networkBandwidth": 0.23
+    }
+  },
+  "riskMetrics": {
+    "currentExposure": 125000,
+    "maxExposure": 250000,
+    "drawdown": {
+      "current": 0.0183,
+      "max24h": 0.0492,
+      "maxAllTime": 0.0492
+    },
+    "var": {
+      "daily95": 0.032,
+      "daily99": 0.048
+    },
+    "correlations": {
+      "btcusd": 0.73,
+      "ethusd": 0.82,
+      "market": 0.65
+    }
+  },
+  "strategyBreakdown": {
+    "momentum": {
+      "pnl": 523.21,
+      "trades": 312,
+      "winRate": 0.61,
+      "sharpe": 3.12
+    },
+    "meanReversion": {
+      "pnl": 401.87,
+      "trades": 287,
+      "winRate": 0.58,
+      "sharpe": 2.76
+    },
+    "arbitrage": {
+      "pnl": 289.45,
+      "trades": 198,
+      "winRate": 0.72,
+      "sharpe": 4.21
+    },
+    "marketMaking": {
+      "pnl": 211.06,
+      "trades": 255,
+      "winRate": 0.51,
+      "sharpe": 1.89
+    }
+  },
+  "alerts": [],
+  "nextActions": [
+    "Review momentum strategy parameters",
+    "Increase arbitrage allocation by 10%",
+    "Schedule maintenance window for upgrades"
+  ]
+} 

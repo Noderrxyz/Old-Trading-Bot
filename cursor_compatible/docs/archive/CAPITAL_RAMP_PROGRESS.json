@@ -1,0 +1,69 @@
+{
+  "capitalRampSchedule": {
+    "phase1": {
+      "name": "Initial Deployment",
+      "timeline": "Day 0",
+      "capitalPercent": 5,
+      "capitalAmount": 50000,
+      "riskLimit": 0.03,
+      "status": "pending",
+      "expectedReturn": "2-3% monthly"
+    },
+    "phase2": {
+      "name": "Quick Ramp",
+      "timeline": "Hour 1",
+      "capitalPercent": 10,
+      "capitalAmount": 100000,
+      "riskLimit": 0.03,
+      "status": "pending",
+      "expectedReturn": "3-4% monthly"
+    },
+    "phase3": {
+      "name": "Confidence Build",
+      "timeline": "Day 1",
+      "capitalPercent": 25,
+      "capitalAmount": 250000,
+      "riskLimit": 0.05,
+      "status": "pending",
+      "expectedReturn": "4-5% monthly"
+    },
+    "phase4": {
+      "name": "Scale Up",
+      "timeline": "Week 1",
+      "capitalPercent": 50,
+      "capitalAmount": 500000,
+      "riskLimit": 0.05,
+      "status": "pending",
+      "expectedReturn": "5-6% monthly"
+    },
+    "phase5": {
+      "name": "Full Deployment",
+      "timeline": "Day 30",
+      "capitalPercent": 100,
+      "capitalAmount": 1000000,
+      "riskLimit": 0.05,
+      "status": "pending",
+      "expectedReturn": "6-8% monthly"
+    }
+  },
+  "currentStatus": {
+    "phase": 0,
+    "capitalDeployed": 0,
+    "percentComplete": 0,
+    "nextMilestone": "Phase 1 - Day 0",
+    "estimatedFullDeployment": "30 days"
+  },
+  "riskMetrics": {
+    "maxDrawdownAllowed": 0.15,
+    "currentDrawdown": 0,
+    "dailyVaR": 0.05,
+    "monthlyVaR": 0.12,
+    "sharpeTarget": 2.5
+  },
+  "automationSettings": {
+    "autoProgress": true,
+    "requiresApproval": false,
+    "emergencyStop": true,
+    "rebalanceFrequency": "daily"
+  }
+} 

@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noderr Protocol - Executive Dashboard V2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e1a;
+            color: #e4e8f1;
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: #0f1420;
+            border-right: 1px solid #1a2332;
+            padding: 20px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 5px;
+        }
+        
+        .nav-link {
+            display: block;
+            padding: 12px 16px;
+            color: #a3b3c9;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: #1a2332;
+            color: #00d4ff;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #1a2332;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: #0f1420;
+            border: 1px solid #1a2332;
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,212,255,0.1);
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #7a8ba0;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e4e8f1;
+            margin-bottom: 8px;
+        }
+        
+        .metric-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .metric-change.positive {
+            color: #00ff88;
+        }
+        
+        .metric-change.negative {
+            color: #ff3366;
+        }
+        
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: #0f1420;
+            border: 1px solid #1a2332;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .time-selector {
+            display: flex;
+            background: #1a2332;
+            border-radius: 6px;
+            padding: 2px;
+        }
+        
+        .time-option {
+            padding: 6px 12px;
+            border: none;
+            background: none;
+            color: #7a8ba0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .time-option.active {
+            background: #00d4ff;
+            color: #0a0e1a;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0e1a;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Strategy Table */
+        .table-container {
+            background: #0f1420;
+            border: 1px solid #1a2332;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #1a2332;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th {
+            text-align: left;
+            padding: 16px 24px;
+            background: #0a0e1a;
+            font-weight: 600;
+            color: #7a8ba0;
+            font-size: 14px;
+        }
+        
+        .table td {
+            padding: 16px 24px;
+            border-top: 1px solid #1a2332;
+        }
+        
+        .table tr:hover {
+            background: #141a28;
+        }
+        
+        .strategy-name {
+            font-weight: 600;
+            color: #e4e8f1;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.active {
+            background: #00ff8833;
+            color: #00ff88;
+        }
+        
+        .badge.paused {
+            background: #ffaa3333;
+            color: #ffaa33;
+        }
+        
+        /* Deployment Pipeline */
+        .pipeline-container {
+            background: #0f1420;
+            border: 1px solid #1a2332;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .pipeline-stages {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .pipeline-stage {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stage-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #1a2332;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+        
+        .stage-icon.complete {
+            background: #00ff88;
+            color: #0a0e1a;
+        }
+        
+        .stage-icon.active {
+            background: #00d4ff;
+            color: #0a0e1a;
+            animation: pulse 2s infinite;
+        }
+        
+        .stage-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .stage-status {
+            font-size: 12px;
+            color: #7a8ba0;
+        }
+        
+        .pipeline-progress {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #1a2332;
+            z-index: 0;
+        }
+        
+        .pipeline-progress-fill {
+            height: 100%;
+            background: #00d4ff;
+            width: 60%;
+            transition: width 0.5s ease;
+        }
+        
+        /* Risk Heatmap */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+        }
+        
+        .heatmap-cell.low {
+            background: #00ff8833;
+            color: #00ff88;
+        }
+        
+        .heatmap-cell.medium {
+            background: #ffaa3333;
+            color: #ffaa33;
+        }
+        
+        .heatmap-cell.high {
+            background: #ff336633;
+            color: #ff3366;
+        }
+        
+        /* Action Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #00d4ff;
+            color: #0a0e1a;
+        }
+        
+        .btn-primary:hover {
+            background: #00a8cc;
+        }
+        
+        .btn-secondary {
+            background: #1a2332;
+            color: #e4e8f1;
+        }
+        
+        .btn-secondary:hover {
+            background: #243040;
+        }
+        
+        .btn-danger {
+            background: #ff3366;
+            color: #ffffff;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .pipeline-stages {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .pipeline-progress {
+                display: none;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #1a2332;
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span>⚡</span>
+                <span>Noderr Protocol</span>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#overview" class="nav-link active" onclick="switchView('overview')">
+                            📊 Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#strategies" class="nav-link" onclick="switchView('strategies')">
+                            🎯 Strategies
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#deployment" class="nav-link" onclick="switchView('deployment')">
+                            🚀 Deployment
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#risk" class="nav-link" onclick="switchView('risk')">
+                            ⚠️ Risk Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#analytics" class="nav-link" onclick="switchView('analytics')">
+                            📈 Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#settings" class="nav-link" onclick="switchView('settings')">
+                            ⚙️ Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Overview View -->
+            <div id="overview-view" class="view">
+                <header class="header">
+                    <h1 class="page-title">System Overview</h1>
+                    <div class="header-actions">
+                        <div class="status-indicator">
+                            <span class="status-dot"></span>
+                            <span>Live Trading</span>
+                        </div>
+                        <button class="btn btn-secondary" onclick="exportReport()">
+                            📥 Export Report
+                        </button>
+                        <button class="btn btn-danger" onclick="emergencyStop()">
+                            🛑 Emergency Stop
+                        </button>
+                    </div>
+                </header>
+                
+                <!-- Key Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Total AUM</div>
+                        <div class="metric-value" id="aumValue">$45.2M</div>
+                        <div class="metric-change positive">
+                            <span>↑</span>
+                            <span>+2.4%</span>
+                            <span>24h</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">24h P&L</div>
+                        <div class="metric-value" id="pnl24h">+$1.2M</div>
+                        <div class="metric-change positive">
+                            <span>↑</span>
+                            <span>+2.7%</span>
+                            <span>vs yesterday</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Active Strategies</div>
+                        <div class="metric-value" id="activeStrategies">12</div>
+                        <div class="metric-change">
+                            <span>✓</span>
+                            <span>All healthy</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Sharpe Ratio</div>
+                        <div class="metric-value" id="sharpeRatio">2.84</div>
+                        <div class="metric-change positive">
+                            <span>↑</span>
+                            <span>+0.12</span>
+                            <span>7d avg</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Max Drawdown</div>
+                        <div class="metric-value" id="maxDrawdown">-3.2%</div>
+                        <div class="metric-change">
+                            <span>📊</span>
+                            <span>Within limits</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">System Latency</div>
+                        <div class="metric-value" id="latency">12ms</div>
+                        <div class="metric-change positive">
+                            <span>⚡</span>
+                            <span>Optimal</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts -->
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Portfolio Performance</h3>
+                            <div class="chart-controls">
+                                <div class="time-selector">
+                                    <button class="time-option" onclick="updateChart('1D')">1D</button>
+                                    <button class="time-option active" onclick="updateChart('1W')">1W</button>
+                                    <button class="time-option" onclick="updateChart('1M')">1M</button>
+                                    <button class="time-option" onclick="updateChart('YTD')">YTD</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder" id="performanceChart">
+                            <canvas id="perfCanvas" width="600" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Strategy P&L Attribution</h3>
+                            <div class="chart-controls">
+                                <button class="btn btn-secondary" onclick="toggleStrategyView()">
+                                    🔄 Switch View
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder" id="attributionChart">
+                            <canvas id="attrCanvas" width="600" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Strategy Performance Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="chart-title">Strategy Performance</h3>
+                        <button class="btn btn-primary" onclick="addStrategy()">
+                            + Add Strategy
+                        </button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Strategy</th>
+                                <th>Status</th>
+                                <th>24h P&L</th>
+                                <th>7d P&L</th>
+                                <th>Sharpe</th>
+                                <th>Allocation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="strategyTableBody">
+                            <tr>
+                                <td class="strategy-name">Alpha Momentum</td>
+                                <td><span class="badge active">Active</span></td>
+                                <td class="positive">+$342K</td>
+                                <td class="positive">+$1.2M</td>
+                                <td>3.21</td>
+                                <td>25%</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="viewStrategy('alpha-momentum')">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="strategy-name">Market Neutral Arb</td>
+                                <td><span class="badge active">Active</span></td>
+                                <td class="positive">+$128K</td>
+                                <td class="positive">+$892K</td>
+                                <td>2.84</td>
+                                <td>20%</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="viewStrategy('market-neutral')">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="strategy-name">Volatility Harvester</td>
+                                <td><span class="badge active">Active</span></td>
+                                <td class="negative">-$42K</td>
+                                <td class="positive">+$234K</td>
+                                <td>1.92</td>
+                                <td>15%</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="viewStrategy('vol-harvest')">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Deployment View -->
+            <div id="deployment-view" class="view" style="display: none;">
+                <header class="header">
+                    <h1 class="page-title">Deployment Pipeline</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="deployStrategy()">
+                            🚀 Deploy New Version
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="pipeline-container">
+                    <h3 class="chart-title">Current Deployment: v2.4.1</h3>
+                    <div class="pipeline-stages">
+                        <div class="pipeline-progress">
+                            <div class="pipeline-progress-fill"></div>
+                        </div>
+                        
+                        <div class="pipeline-stage">
+                            <div class="stage-icon complete">✓</div>
+                            <div class="stage-name">Development</div>
+                            <div class="stage-status">Completed</div>
+                        </div>
+                        
+                        <div class="pipeline-stage">
+                            <div class="stage-icon complete">✓</div>
+                            <div class="stage-name">Backtest</div>
+                            <div class="stage-status">Passed</div>
+                        </div>
+                        
+                        <div class="pipeline-stage">
+                            <div class="stage-icon active">⚡</div>
+                            <div class="stage-name">Paper Trading</div>
+                            <div class="stage-status">Running 72h</div>
+                        </div>
+                        
+                        <div class="pipeline-stage">
+                            <div class="stage-icon">🚀</div>
+                            <div class="stage-name">Canary</div>
+                            <div class="stage-status">Pending</div>
+                        </div>
+                        
+                        <div class="pipeline-stage">
+                            <div class="stage-icon">🎯</div>
+                            <div class="stage-name">Production</div>
+                            <div class="stage-status">Waiting</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Deployment History -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="chart-title">Deployment History</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Deployed</th>
+                                <th>Duration</th>
+                                <th>Performance</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="strategy-name">v2.4.0</td>
+                                <td>2024-01-15 14:23</td>
+                                <td>5 days</td>
+                                <td class="positive">+2.4%</td>
+                                <td><span class="badge active">Live</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="rollback('v2.4.0')">Rollback</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Risk Management View -->
+            <div id="risk-view" class="view" style="display: none;">
+                <header class="header">
+                    <h1 class="page-title">Risk Management</h1>
+                    <div class="header-actions">
+                        <div class="status-indicator">
+                            <span class="status-dot"></span>
+                            <span>All Systems Normal</span>
+                        </div>
+                    </div>
+                </header>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Value at Risk (95%)</div>
+                        <div class="metric-value">$2.1M</div>
+                        <div class="metric-change">
+                            <span>📊</span>
+                            <span>4.6% of AUM</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Current Exposure</div>
+                        <div class="metric-value">68%</div>
+                        <div class="metric-change">
+                            <span>⚡</span>
+                            <span>Within limits</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Correlation Risk</div>
+                        <div class="metric-value">Low</div>
+                        <div class="metric-change positive">
+                            <span>✓</span>
+                            <span>Well diversified</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Heatmap -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Risk Heatmap by Asset</h3>
+                    </div>
+                    <div class="heatmap-grid">
+                        <div class="heatmap-cell low">
+                            <div>BTC</div>
+                            <div>2.1%</div>
+                        </div>
+                        <div class="heatmap-cell low">
+                            <div>ETH</div>
+                            <div>1.8%</div>
+                        </div>
+                        <div class="heatmap-cell medium">
+                            <div>SOL</div>
+                            <div>4.2%</div>
+                        </div>
+                        <div class="heatmap-cell low">
+                            <div>BNB</div>
+                            <div>1.5%</div>
+                        </div>
+                        <div class="heatmap-cell high">
+                            <div>DOGE</div>
+                            <div>8.7%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // View Management
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => {
+                view.style.display = 'none';
+            });
+            
+            // Show selected view
+            const selectedView = document.getElementById(`${viewName}-view`);
+            if (selectedView) {
+                selectedView.style.display = 'block';
+            }
+            
+            // Update active nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        // Mock Data Updates
+        function updateMetrics() {
+            // Simulate real-time updates
+            const aum = 45.2 + (Math.random() - 0.5) * 0.5;
+            document.getElementById('aumValue').textContent = `$${aum.toFixed(1)}M`;
+            
+            const pnl = 1.2 + (Math.random() - 0.5) * 0.2;
+            document.getElementById('pnl24h').textContent = `+$${pnl.toFixed(1)}M`;
+            
+            const sharpe = 2.84 + (Math.random() - 0.5) * 0.1;
+            document.getElementById('sharpeRatio').textContent = sharpe.toFixed(2);
+            
+            const latency = 12 + Math.floor(Math.random() * 5);
+            document.getElementById('latency').textContent = `${latency}ms`;
+        }
+        
+        // Chart Drawing
+        function drawPerformanceChart() {
+            const canvas = document.getElementById('perfCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw mock chart
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < canvas.width; i += 10) {
+                const y = canvas.height / 2 + Math.sin(i / 50) * 50 + (Math.random() - 0.5) * 20;
+                if (i === 0) {
+                    ctx.moveTo(i, y);
+                } else {
+                    ctx.lineTo(i, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Add gradient fill
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+        
+        function drawAttributionChart() {
+            const canvas = document.getElementById('attrCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw bars
+            const strategies = [
+                { name: 'Alpha Mom', value: 0.35, color: '#00ff88' },
+                { name: 'Mkt Neutral', value: 0.25, color: '#00d4ff' },
+                { name: 'Vol Harvest', value: 0.15, color: '#ffaa33' },
+                { name: 'Others', value: 0.25, color: '#7a8ba0' }
+            ];
+            
+            const barWidth = 80;
+            const spacing = 40;
+            let x = 50;
+            
+            strategies.forEach(strategy => {
+                const barHeight = strategy.value * 200;
+                const y = canvas.height - barHeight - 50;
+                
+                ctx.fillStyle = strategy.color;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // Label
+                ctx.fillStyle = '#e4e8f1';
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(strategy.name, x + barWidth / 2, canvas.height - 30);
+                ctx.fillText(`${(strategy.value * 100).toFixed(0)}%`, x + barWidth / 2, y - 10);
+                
+                x += barWidth + spacing;
+            });
+        }
+        
+        // Action Handlers
+        function exportReport() {
+            alert('Generating comprehensive report...');
+        }
+        
+        function emergencyStop() {
+            if (confirm('Are you sure you want to execute emergency stop? This will halt all trading activities.')) {
+                alert('Emergency stop executed. All trading halted.');
+            }
+        }
+        
+        function viewStrategy(strategyId) {
+            console.log('Viewing strategy:', strategyId);
+        }
+        
+        function deployStrategy() {
+            alert('Opening deployment wizard...');
+        }
+        
+        function rollback(version) {
+            if (confirm(`Rollback to ${version}?`)) {
+                alert(`Rolling back to ${version}...`);
+            }
+        }
+        
+        // Initialize
+        window.onload = function() {
+            drawPerformanceChart();
+            drawAttributionChart();
+            
+            // Update metrics every 2 seconds
+            setInterval(updateMetrics, 2000);
+            
+            // Redraw charts every 5 seconds
+            setInterval(() => {
+                drawPerformanceChart();
+                drawAttributionChart();
+            }, 5000);
+        };
+        
+        // WebSocket Connection (mock)
+        function connectWebSocket() {
+            console.log('Connecting to real-time data stream...');
+            // In production, connect to actual WebSocket
+        }
+        
+        // Responsive handling
+        window.addEventListener('resize', function() {
+            drawPerformanceChart();
+            drawAttributionChart();
+        });
+    </script>
+</body>
+</html> 

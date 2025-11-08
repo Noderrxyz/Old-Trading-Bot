@@ -1,0 +1,60 @@
+# Multi-stage Dockerfile for Noderr Protocol modules
+# Build stage
+FROM node:20-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache python3 make g++ git
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY lerna.json ./
+COPY packages/ ./packages/
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Build the specific module
+ARG MODULE
+RUN npm run build --workspace=packages/${MODULE}
+
+# Production stage
+FROM node:20-alpine
+
+# Install runtime dependencies
+RUN apk add --no-cache tini curl
+
+# Create non-root user
+RUN addgroup -g 1001 noderr && \
+    adduser -D -u 1001 -G noderr noderr
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application
+ARG MODULE
+COPY --from=builder --chown=noderr:noderr /app/node_modules ./node_modules
+COPY --from=builder --chown=noderr:noderr /app/packages/${MODULE}/dist ./dist
+COPY --from=builder --chown=noderr:noderr /app/packages/${MODULE}/package.json ./
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV MODULE_NAME=${MODULE}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+# Switch to non-root user
+USER noderr
+
+# Expose port
+EXPOSE 3000
+
+# Use tini as entrypoint for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start the application
+CMD ["node", "dist/index.js"] 

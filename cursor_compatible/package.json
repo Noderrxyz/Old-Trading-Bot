@@ -1,0 +1,85 @@
+{
+    "name":  "@noderr/protocol",
+    "version":  "1.0.0",
+    "description":  "Noderr Protocol - Institutional-grade crypto trading system",
+    "private":  true,
+    "workspaces":  "packages/*",
+    "scripts":  {
+                    "build":  "pnpm -r build",
+                    "build:watch":  "pnpm -r --parallel build:watch",
+                    "test":  "pnpm -r test",
+                    "test:coverage":  "pnpm -r test:coverage",
+                    "lint":  "pnpm -r lint",
+                    "lint:fix":  "pnpm -r lint:fix",
+                    "clean":  "pnpm -r clean \u0026\u0026 rimraf node_modules",
+                    "prepare":  "husky install",
+                    "// Production Commands":  "",
+                    "validate:production":  "ts-node packages/production-launcher/src/launch.ts",
+                    "deploy:staging":  "NODE_ENV=staging ts-node packages/production-launcher/src/launch.ts",
+                    "deploy:canary":  "NODE_ENV=canary ts-node packages/production-launcher/src/launch.ts",
+                    "launch:production":  "NODE_ENV=production ts-node packages/production-launcher/src/launch.ts",
+                    "// Development Commands":  "",
+                    "dev":  "ts-node test-local.ts",
+                    "dev:watch":  "nodemon --watch packages --watch test-local.ts --exec ts-node test-local.ts",
+                    "dashboard":  "cd packages/executive-dashboard \u0026\u0026 npm start",
+                    "// Testing Commands":  "",
+                    "chaos:test":  "ts-node packages/chaos-suite/src/run-chaos.ts",
+                    "simulate:staging":  "ts-node packages/production-launcher/src/simulate.ts",
+                    "// Safety Commands":  "",
+                    "safety:cli":  "ts-node packages/safety-control/src/cli.ts",
+                    "safety:set-mode":  "ts-node packages/safety-control/src/cli.ts set-mode",
+                    "// Utility Commands":  "",
+                    "deps:check":  "pnpm -r exec ncu",
+                    "deps:update":  "pnpm -r exec ncu -u",
+                    "format":  "prettier --write \"packages/**/*.{ts,js,json,md}\"",
+                    "format:check":  "prettier --check \"packages/**/*.{ts,js,json,md}\""
+                },
+    "keywords":  [
+                     "trading",
+                     "crypto",
+                     "institutional",
+                     "ai",
+                     "ml",
+                     "defi",
+                     "algorithmic-trading",
+                     "hft",
+                     "market-making"
+                 ],
+    "author":  "Noderr Protocol Team",
+    "license":  "MIT",
+    "devDependencies":  {
+                            "@types/node":  "^20.11.24",
+                            "@typescript-eslint/eslint-plugin":  "^7.1.0",
+                            "@typescript-eslint/parser":  "^7.1.0",
+                            "eslint":  "^8.57.0",
+                            "husky":  "^9.0.11",
+                            "lint-staged":  "^15.2.2",
+                            "nodemon":  "^3.0.3",
+                            "prettier":  "^3.2.5",
+                            "rimraf":  "^5.0.5",
+                            "ts-node":  "^10.9.2",
+                            "typescript":  "^5.3.3"
+                        },
+    "engines":  {
+                    "node":  "\u003e=18.0.0",
+                    "pnpm":  "\u003e=8.0.0"
+                },
+    "packageManager":  "pnpm@8.15.4",
+    "lint-staged":  {
+                        "*.{ts,js}":  [
+                                          "eslint --fix",
+                                          "prettier --write"
+                                      ],
+                        "*.{json,md}":  [
+                                            "prettier --write"
+                                        ]
+                    },
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/noderr/protocol.git"
+                   },
+    "bugs":  {
+                 "url":  "https://github.com/noderr/protocol/issues"
+             },
+    "homepage":  "https://github.com/noderr/protocol#readme"
+}

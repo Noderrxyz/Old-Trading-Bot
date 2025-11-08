@@ -1,0 +1,22 @@
+triggers:
+  - type: drawdown
+    severity: critical
+    threshold: 0.1  # 10% drawdown
+    window: 60000   # 1 minute
+
+  - type: gas
+    severity: critical
+    threshold: 200  # 200 gwei
+    window: 300000  # 5 minutes
+
+  - type: flashbots
+    severity: critical
+    threshold: 3    # 3 rejections
+    window: 300000  # 5 minutes
+
+  - type: retry
+    severity: critical
+    threshold: 5    # 5 retries
+    window: 10000   # 10 seconds
+
+cooldown: 300000    # 5 minutes 

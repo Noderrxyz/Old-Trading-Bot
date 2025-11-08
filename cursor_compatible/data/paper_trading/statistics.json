@@ -1,0 +1,126 @@
+[
+  {
+    "timestamp": "2025-05-14T19:19:21.136Z",
+    "uptime": {
+      "days": 0,
+      "hours": 0,
+      "minutes": 0,
+      "totalMs": 1
+    },
+    "portfolio": {
+      "value": 100000,
+      "cashBalance": 100000,
+      "totalPnl": 0,
+      "positionCount": 0
+    },
+    "system": {
+      "uptimeSeconds": 0,
+      "operationsSinceStart": 0,
+      "errorCount": 0,
+      "checkpointCount": 0,
+      "tradesExecuted": 0,
+      "recoveryAttempts": 0,
+      "restartCount": 0
+    }
+  },
+  {
+    "timestamp": "2025-05-14T19:30:21.251Z",
+    "uptime": {
+      "days": 0,
+      "hours": 0,
+      "minutes": 11,
+      "totalMs": 660116
+    },
+    "portfolio": {
+      "value": 100000,
+      "cashBalance": 100000,
+      "totalPnl": 0,
+      "positionCount": 0
+    },
+    "system": {
+      "uptimeSeconds": 660,
+      "operationsSinceStart": 0,
+      "errorCount": 11,
+      "checkpointCount": 13,
+      "tradesExecuted": 0,
+      "recoveryAttempts": 0,
+      "lastErrorTime": 1747251021235,
+      "restartCount": 1
+    }
+  },
+  {
+    "timestamp": "2025-05-14T19:30:22.269Z",
+    "uptime": {
+      "days": 0,
+      "hours": 0,
+      "minutes": 11,
+      "totalMs": 661134
+    },
+    "portfolio": {
+      "value": 100000,
+      "cashBalance": 100000,
+      "totalPnl": 0,
+      "positionCount": 0
+    },
+    "system": {
+      "uptimeSeconds": 660,
+      "operationsSinceStart": 0,
+      "errorCount": 11,
+      "checkpointCount": 14,
+      "tradesExecuted": 0,
+      "recoveryAttempts": 0,
+      "lastErrorTime": 1747251021235,
+      "restartCount": 1
+    }
+  },
+  {
+    "timestamp": "2025-05-14T19:31:22.279Z",
+    "uptime": {
+      "days": 0,
+      "hours": 0,
+      "minutes": 12,
+      "totalMs": 721143
+    },
+    "portfolio": {
+      "value": 100000,
+      "cashBalance": 100000,
+      "totalPnl": 0,
+      "positionCount": 0
+    },
+    "system": {
+      "uptimeSeconds": 720,
+      "operationsSinceStart": 0,
+      "errorCount": 12,
+      "checkpointCount": 15,
+      "tradesExecuted": 0,
+      "recoveryAttempts": 0,
+      "lastErrorTime": 1747251081243,
+      "restartCount": 2
+    }
+  },
+  {
+    "timestamp": "2025-05-14T19:31:23.281Z",
+    "uptime": {
+      "days": 0,
+      "hours": 0,
+      "minutes": 12,
+      "totalMs": 722146
+    },
+    "portfolio": {
+      "value": 100000,
+      "cashBalance": 100000,
+      "totalPnl": 0,
+      "positionCount": 0
+    },
+    "system": {
+      "uptimeSeconds": 720,
+      "operationsSinceStart": 0,
+      "errorCount": 12,
+      "checkpointCount": 16,
+      "tradesExecuted": 0,
+      "recoveryAttempts": 0,
+      "lastErrorTime": 1747251081243,
+      "restartCount": 2
+    }
+  }
+]

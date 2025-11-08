@@ -1,0 +1,72 @@
+groups:
+  - name: noderr_alerts
+    rules:
+      # Circuit Breaker Alerts
+      - alert: CircuitBreakerTripped
+        expr: blockchain_circuit_breaker_status > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breaker tripped for chain {{ $labels.chain_id }}"
+          description: "The circuit breaker for chain {{ $labels.chain_id }} has been open for at least 1 minute. Adapter operations to this chain are being rejected."
+
+      # Connection Status Alerts
+      - alert: BlockchainDisconnected
+        expr: blockchain_connection_status == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Blockchain disconnected for chain {{ $labels.chain_id }}"
+          description: "Blockchain adapter for chain {{ $labels.chain_id }} has been disconnected for at least 3 minutes."
+
+      # RPC Error Rate Alerts
+      - alert: HighRPCErrorRate
+        expr: sum(rate(blockchain_rpc_errors_total[5m])) by (chain_id) / sum(rate(blockchain_rpc_requests_total[5m])) by (chain_id) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High RPC error rate for chain {{ $labels.chain_id }}"
+          description: "The RPC error rate for chain {{ $labels.chain_id }} is above 10% for the last 5 minutes."
+
+      # Latency Alerts
+      - alert: HighRPCLatency
+        expr: histogram_quantile(0.95, sum(rate(blockchain_rpc_latency_ms_bucket[5m])) by (chain_id, le)) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High RPC latency for chain {{ $labels.chain_id }}"
+          description: "95th percentile of RPC latency for chain {{ $labels.chain_id }} is above 1000ms for the last 5 minutes."
+
+      # Trading Error Alerts
+      - alert: TradeExecutionFailure
+        expr: rate(trade_volume_usd_total{status="failure"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Trade execution failures detected for chain {{ $labels.chain_id }}"
+          description: "There have been failed trade executions on chain {{ $labels.chain_id }} in the last 5 minutes."
+
+      # Retry Attempts
+      - alert: HighRetryRate
+        expr: sum(rate(blockchain_retry_attempts_total[5m])) by (chain_id) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High operation retry rate for chain {{ $labels.chain_id }}"
+          description: "There are more than 5 retry attempts per minute for chain {{ $labels.chain_id }}."
+
+      # Queue Depth
+      - alert: HighQueueDepth
+        expr: blockchain_adapter_queue_depth > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High operation queue depth for chain {{ $labels.chain_id }}"
+          description: "Queue depth for chain {{ $labels.chain_id }} is above 10 for more than 2 minutes, indicating potential bottleneck." 

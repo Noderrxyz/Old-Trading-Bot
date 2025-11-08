@@ -1,0 +1,51 @@
+# Alpha Cache Configuration
+# 
+# Controls the temporal caching of alpha signals with configurable decay
+
+# Whether the cache is enabled
+enabled: true
+
+# The backend to use for caching (redis or memory)
+cacheBackend: memory
+
+# Time to live in seconds for cached signals (300 = 5 minutes)
+ttlSeconds: 300
+
+# Type of confidence decay to apply to cached signals (linear, exponential, or none)
+decayType: exponential
+
+# Minimum confidence threshold below which signals are considered expired
+minConfidenceThreshold: 0.2
+
+# Decay factor to apply per second for confidence values
+# For exponential: 0.01 = roughly 95% after 5 seconds, 82% after 20 seconds, 55% after 60 seconds
+# For linear: 0.01 = 100% - 0.01 * seconds (reaches 0 after 100 seconds)
+decayFactorPerSec: 0.01
+
+# Redis connection options (if using redis backend)
+redis:
+  # Redis connection URL (if provided, host/port/etc. are ignored)
+  # url: redis://localhost:6379
+  
+  # Redis host
+  host: localhost
+  
+  # Redis port
+  port: 6379
+  
+  # Redis password (if needed)
+  # password: your_password
+  
+  # Redis database index
+  db: 0
+  
+  # Key prefix for Redis keys
+  keyPrefix: noderr:alpha:cache:
+
+# Memory cache options (if using memory backend)
+memory:
+  # Maximum number of entries to keep in the memory cache
+  maxSize: 1000
+  
+  # Whether to check for expired entries on each access
+  checkExpirationOnAccess: true 
