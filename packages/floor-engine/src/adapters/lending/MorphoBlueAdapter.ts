@@ -264,18 +264,18 @@ export class MorphoBlueAdapter implements ILendingAdapter {
     const totalBorrowShares = market.totalBorrowShares;
 
     // Convert shares to assets
-    const supplied =
+    const supplied: bigint =
       totalSupplyShares > 0n
-        ? (supplyShares * totalSupplyAssets) / totalSupplyShares
+        ? BigInt((supplyShares * totalSupplyAssets) / totalSupplyShares)
         : 0n;
 
-    const borrowed =
+    const borrowed: bigint =
       totalBorrowShares > 0n
-        ? (borrowShares * totalBorrowAssets) / totalBorrowShares
+        ? BigInt((borrowShares * totalBorrowAssets) / totalBorrowShares)
         : 0n;
 
     // Calculate total value (supplied + collateral - borrowed)
-    const totalValue = supplied + collateral - borrowed;
+    const totalValue = supplied + BigInt(collateral) - borrowed;
 
     // Get current supply APY
     const apy = await this.getAPY(this.loanToken);
@@ -285,8 +285,8 @@ export class MorphoBlueAdapter implements ILendingAdapter {
 
     return {
       totalValue,
-      supplied,
-      borrowed,
+      supplied: BigInt(supplied),
+      borrowed: BigInt(borrowed),
       apy,
       healthFactor,
       metadata: {

@@ -225,7 +225,7 @@ export class SparkAdapter implements ILendingAdapter {
     const healthFactor = accountData.healthFactor;
 
     // Calculate total value (collateral - debt)
-    const totalValue = totalCollateralBase - totalDebtBase;
+    const totalValue = BigInt(totalCollateralBase) - BigInt(totalDebtBase);
 
     // Get current supply APY (if token specified)
     let apy = 0;

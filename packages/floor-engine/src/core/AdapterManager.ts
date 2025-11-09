@@ -45,6 +45,10 @@ interface AdapterConfig {
   provider: ethers.Provider;
   wallet: ethers.Wallet;
   chainId: number;
+  // Protocol-specific optional fields
+  baseToken?: string; // For Compound V3
+  marketId?: string; // For Morpho Blue
+  validatorDataProvider?: () => Promise<any>; // For Native ETH
 }
 
 /**
@@ -129,10 +133,12 @@ export class AdapterManager {
         adapter = new AaveV3Adapter(this.config);
         break;
       case 'Compound V3':
-        adapter = new CompoundV3Adapter(this.config);
+        // Note: baseToken should be configured when registering the adapter
+        adapter = new CompoundV3Adapter({ ...this.config, baseToken: this.config.baseToken || 'USDC' });
         break;
       case 'Morpho Blue':
-        adapter = new MorphoBlueAdapter(this.config);
+        // Note: marketId should be configured when registering the adapter
+        adapter = new MorphoBlueAdapter({ ...this.config, marketId: this.config.marketId || '0x' });
         break;
       case 'Spark':
         adapter = new SparkAdapter(this.config);

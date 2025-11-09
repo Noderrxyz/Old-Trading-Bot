@@ -38,7 +38,7 @@ const ROCKET_RETH_TOKEN_ABI = [
  * Rocket Pool Storage ABI (minimal interface)
  */
 const ROCKET_STORAGE_ABI = [
-  'function getAddress(bytes32 key) view returns (address)',
+  'function getAddress(bytes32 _key) view returns (address)',
 ];
 
 /**
@@ -105,7 +105,7 @@ export class RocketPoolAdapter implements IStakingAdapter {
   private async initialize(): Promise<void> {
     if (!this.depositPoolAddress) {
       // Get deposit pool address
-      this.depositPoolAddress = await this.storage.getAddress(ROCKET_DEPOSIT_POOL_KEY);
+      this.depositPoolAddress = await (this.storage as any).getAddress(ROCKET_DEPOSIT_POOL_KEY);
       this.depositPool = new ethers.Contract(
         this.depositPoolAddress,
         ROCKET_DEPOSIT_POOL_ABI,
@@ -113,7 +113,7 @@ export class RocketPoolAdapter implements IStakingAdapter {
       );
 
       // Get rETH token address
-      this.rETHAddress = await this.storage.getAddress(ROCKET_RETH_TOKEN_KEY);
+      this.rETHAddress = await (this.storage as any).getAddress(ROCKET_RETH_TOKEN_KEY);
       this.rETH = new ethers.Contract(
         this.rETHAddress,
         ROCKET_RETH_TOKEN_ABI,

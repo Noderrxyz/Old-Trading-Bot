@@ -230,6 +230,7 @@ export interface RebalanceAction {
   action: 'deposit' | 'withdraw';
   amount: bigint;
   reason: string;
+  error?: string;
 }
 
 /**

@@ -178,7 +178,7 @@ async function example3_MorphoBlueFlexibleMarkets() {
   const position = await morpho.getPosition();
   console.log(`\nPosition:`);
   console.log(`Total Value: ${ethers.formatEther(position.totalValue)} ETH`);
-  console.log(`Collateral: ${position.metadata.collateral}`);
+  console.log(`Collateral: ${position.metadata?.collateral}`);
   console.log(`Health Factor: ${position.healthFactor}`);
 
   // Borrow loan token

@@ -261,7 +261,7 @@ export class CompoundV3Adapter implements ILendingAdapter {
     const borrowed = await this.comet.borrowBalanceOf(this.wallet.address);
 
     // Calculate total value (supplied - borrowed)
-    const totalValue = supplied - borrowed;
+    const totalValue = BigInt(supplied) - BigInt(borrowed);
 
     // Get current supply APY
     const apy = await this.getAPY(this.baseTokenAddress);

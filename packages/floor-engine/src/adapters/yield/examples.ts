@@ -44,8 +44,8 @@ async function example1_ConvexDeposit() {
   // Get position
   const position = await convex.getPosition(pid);
   console.log(`Position:`);
-  console.log(`  Staked: ${position.metadata.stakedBalance}`);
-  console.log(`  Pending CRV: ${position.metadata.pendingCRV}`);
+  console.log(`  Staked: ${position.metadata?.stakedBalance}`);
+  console.log(`  Pending CRV: ${position.metadata?.pendingCRV}`);
   console.log(`  APY: ${position.apy}%`);
   console.log(`  Total Value: ${ethers.formatEther(position.totalValue)}\n`);
 }
@@ -76,7 +76,7 @@ async function example2_ConvexClaimAndWithdraw() {
   // Check updated position
   const position = await convex.getPosition(pid);
   console.log(`Updated position:`);
-  console.log(`  Staked: ${position.metadata.stakedBalance}`);
+  console.log(`  Staked: ${position.metadata?.stakedBalance}`);
   console.log(`  Total Value: ${ethers.formatEther(position.totalValue)}\n`);
 }
 
@@ -148,9 +148,9 @@ async function example4_CurveStakeAndClaim() {
   // Get position
   const position = await curve.getPosition(gauge);
   console.log(`Position:`);
-  console.log(`  Staked: ${position.metadata.stakedBalance}`);
-  console.log(`  Unstaked: ${position.metadata.unstakedBalance}`);
-  console.log(`  Pending CRV: ${position.metadata.pendingCRV}`);
+  console.log(`  Staked: ${position.metadata?.stakedBalance}`);
+  console.log(`  Unstaked: ${position.metadata?.unstakedBalance}`);
+  console.log(`  Pending CRV: ${position.metadata?.pendingCRV}`);
   console.log(`  APY: ${position.apy}%\n`);
 
   // Wait some time for rewards to accrue...
@@ -251,9 +251,9 @@ async function example7_BalancerStakeAndClaim() {
   // Get position
   const position = await balancer.getPosition(poolId, gauge);
   console.log(`Position:`);
-  console.log(`  Staked: ${position.metadata.stakedBalance}`);
-  console.log(`  Unstaked: ${position.metadata.unstakedBalance}`);
-  console.log(`  Pending BAL: ${position.metadata.pendingBAL}`);
+  console.log(`  Staked: ${position.metadata?.stakedBalance}`);
+  console.log(`  Unstaked: ${position.metadata?.unstakedBalance}`);
+  console.log(`  Pending BAL: ${position.metadata?.pendingBAL}`);
   console.log(`  APY: ${position.apy}%\n`);
 
   // Claim BAL rewards
@@ -366,19 +366,19 @@ async function example9_MultiProtocolStrategy() {
   console.log(`  Convex:`);
   console.log(`    Value: ${ethers.formatEther(convexPosition.totalValue)}`);
   console.log(`    APY: ${convexPosition.apy}%`);
-  console.log(`    Pending CRV: ${convexPosition.metadata.pendingCRV}`);
+  console.log(`    Pending CRV: ${convexPosition.metadata?.pendingCRV}`);
 
   const curvePosition = await curve.getPosition(gauge);
   console.log(`  Curve:`);
   console.log(`    Value: ${ethers.formatEther(curvePosition.totalValue)}`);
   console.log(`    APY: ${curvePosition.apy}%`);
-  console.log(`    Pending CRV: ${curvePosition.metadata.pendingCRV}`);
+  console.log(`    Pending CRV: ${curvePosition.metadata?.pendingCRV}`);
 
   const balancerPosition = await balancer.getPosition(poolId, balancerGauge);
   console.log(`  Balancer:`);
   console.log(`    Value: ${ethers.formatEther(balancerPosition.totalValue)}`);
   console.log(`    APY: ${balancerPosition.apy}%`);
-  console.log(`    Pending BAL: ${balancerPosition.metadata.pendingBAL}`);
+  console.log(`    Pending BAL: ${balancerPosition.metadata?.pendingBAL}`);
 
   // Calculate weighted average APY
   const totalValue = convexPosition.totalValue + curvePosition.totalValue + balancerPosition.totalValue;

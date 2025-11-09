@@ -42,7 +42,7 @@ async function example1_LidoBasicStaking() {
   console.log(`stETH Balance: ${ethers.formatEther(position.supplied)}`);
   console.log(`ETH Value: ${ethers.formatEther(position.totalValue)}`);
   console.log(`APY: ${position.apy}%`);
-  console.log(`Exchange Rate: ${position.metadata.exchangeRate}`);
+  console.log(`Exchange Rate: ${position.metadata?.exchangeRate}`);
 
   // Get APY
   const apy = await lido.getAPY();
@@ -140,9 +140,9 @@ async function example3_RocketPoolBasicStaking() {
   // Get position
   const position = await rocketPool.getPosition();
   console.log(`\nPosition:`);
-  console.log(`rETH Balance: ${position.metadata.rETHBalance}`);
-  console.log(`ETH Value: ${position.metadata.ethValue}`);
-  console.log(`Exchange Rate: ${position.metadata.exchangeRate}`);
+  console.log(`rETH Balance: ${position.metadata?.rETHBalance}`);
+  console.log(`ETH Value: ${position.metadata?.ethValue}`);
+  console.log(`Exchange Rate: ${position.metadata?.exchangeRate}`);
   console.log(`APY: ${position.apy}%`);
 
   // Get exchange rate
@@ -324,7 +324,7 @@ async function example7_NativeETHStaking() {
   console.log(`\nPosition:`);
   console.log(`Staked: ${ethers.formatEther(position.supplied)} ETH`);
   console.log(`APY: ${position.apy}%`);
-  console.log(`Note: ${position.metadata.note}`);
+  console.log(`Note: ${position.metadata?.note}`);
 }
 
 /**
