@@ -1,18 +1,8 @@
 /**
- * Floor Engine Orchestrator (Version 2 - Production Ready)
+ * Floor Engine Orchestrator
  * 
  * Main controller for the Floor Engine yield generation system.
  * Manages capital allocation, rebalancing, yield harvesting, and performance tracking.
- * 
- * Week 5 Updates:
- * - Integrated AdapterManager for centralized adapter interaction
- * - Replaced all TODO placeholders with production code
- * - Implemented actual deposit/withdrawal logic
- * - Implemented yield harvesting across all adapter types
- * - Implemented position querying from adapters
- * - Added comprehensive error handling and recovery
- * 
- * @module core/FloorEngine
  */
 
 import { EventEmitter } from 'events';
@@ -25,53 +15,21 @@ import {
   RebalanceResult,
   RebalanceAction,
   PerformanceSnapshot,
-  AdapterPosition,
 } from '../types';
 import { AdapterRegistry } from './AdapterRegistry';
 import { RiskManager } from './RiskManager';
-import { AdapterManager } from './AdapterManager';
 
 /**
  * Floor Engine Orchestrator
  * 
  * Central orchestrator for low-risk yield generation.
  * Coordinates adapters, manages capital, and optimizes yields.
- * 
- * Architecture:
- * - AdapterRegistry: Manages adapter metadata and lifecycle
- * - AdapterManager: Centralizes adapter interactions
- * - RiskManager: Validates allocations and monitors risk
- * - FloorEngine: Orchestrates capital allocation and rebalancing
- * 
- * @example
- * ```typescript
- * const config: FloorEngineConfig = {
- *   rpcUrl: process.env.RPC_URL!,
- *   privateKey: process.env.PRIVATE_KEY!,
- *   chainId: 1,
- *   networkName: 'mainnet',
- *   allocationStrategy: { lending: 50, staking: 30, yield: 20 },
- *   // ... other config
- * };
- * 
- * const engine = new FloorEngine(config);
- * await engine.initialize();
- * 
- * // Allocate capital
- * await engine.allocateCapital(ethers.parseEther('100'));
- * 
- * // Monitor performance
- * const metrics = await engine.getPerformanceMetrics();
- * console.log(`Total Value: ${ethers.formatEther(metrics.totalValue)} ETH`);
- * console.log(`APY: ${metrics.currentAPY}%`);
- * ```
  */
 export class FloorEngine extends EventEmitter {
   private config: FloorEngineConfig;
   private provider: ethers.Provider;
   private wallet: ethers.Wallet;
   private adapterRegistry: AdapterRegistry;
-  private adapterManager: AdapterManager;
   private riskManager: RiskManager;
 
   private totalDeposited: bigint = 0n;
@@ -81,7 +39,6 @@ export class FloorEngine extends EventEmitter {
   private lastHarvest: number = 0;
 
   private isInitialized: boolean = false;
-  private isPaused: boolean = false;
 
   constructor(config: FloorEngineConfig) {
     super();
@@ -93,22 +50,13 @@ export class FloorEngine extends EventEmitter {
 
     // Initialize core components
     this.adapterRegistry = new AdapterRegistry();
-    this.adapterManager = new AdapterManager(
-      this.adapterRegistry,
-      this.provider,
-      this.wallet,
-      config.chainId
-    );
     this.riskManager = new RiskManager(config.riskParameters, this.adapterRegistry);
 
     // Forward events from components
     this.adapterRegistry.on('adapter_registered', (event) => this.emit('adapter_registered', event));
     this.adapterRegistry.on('adapter_enabled', (event) => this.emit('adapter_enabled', event));
     this.adapterRegistry.on('adapter_disabled', (event) => this.emit('adapter_disabled', event));
-    this.riskManager.on('emergency_pause', (event) => {
-      this.isPaused = true;
-      this.emit('emergency_pause', event);
-    });
+    this.riskManager.on('emergency_pause', (event) => this.emit('emergency_pause', event));
     this.riskManager.on('drawdown_exceeded', (event) => this.emit('drawdown_exceeded', event));
   }
 
@@ -137,23 +85,6 @@ export class FloorEngine extends EventEmitter {
     }
     console.log(`[FloorEngine] Connected to ${this.config.networkName} (${network.chainId})`);
 
-    // Health check all adapters
-    console.log('[FloorEngine] Running adapter health checks...');
-    const healthResults = await this.adapterManager.healthCheckAll();
-    let healthyCount = 0;
-    let unhealthyCount = 0;
-
-    for (const [adapterId, health] of healthResults) {
-      if (health.healthy) {
-        healthyCount++;
-      } else {
-        unhealthyCount++;
-        console.warn(`[FloorEngine] Adapter ${adapterId} is unhealthy: ${health.reason}`);
-      }
-    }
-
-    console.log(`[FloorEngine] Health check complete: ${healthyCount} healthy, ${unhealthyCount} unhealthy`);
-
     this.isInitialized = true;
     this.emit('initialized');
 
@@ -164,15 +95,11 @@ export class FloorEngine extends EventEmitter {
    * Allocate capital to adapters based on strategy
    * 
    * @param amount Total amount to allocate
-   * @param strategy Allocation strategy (optional, uses config default)
+   * @param strategy Allocation strategy
    */
   async allocateCapital(amount: bigint, strategy?: AllocationStrategy): Promise<void> {
     if (!this.isInitialized) {
       throw new Error('Floor Engine not initialized');
-    }
-
-    if (this.isPaused) {
-      throw new Error('Floor Engine is paused');
     }
 
     const allocationStrategy = strategy || this.config.allocationStrategy;
@@ -189,10 +116,6 @@ export class FloorEngine extends EventEmitter {
     const lendingAdapters = this.adapterRegistry.getAllAdapters('lending', true);
     const stakingAdapters = this.adapterRegistry.getAllAdapters('staking', true);
     const yieldAdapters = this.adapterRegistry.getAllAdapters('yield', true);
-
-    console.log(`[FloorEngine] Lending adapters: ${lendingAdapters.length}`);
-    console.log(`[FloorEngine] Staking adapters: ${stakingAdapters.length}`);
-    console.log(`[FloorEngine] Yield adapters: ${yieldAdapters.length}`);
 
     // Allocate to lending adapters
     if (lendingAmount > 0n && lendingAdapters.length > 0) {
@@ -226,10 +149,6 @@ export class FloorEngine extends EventEmitter {
   async rebalance(): Promise<RebalanceResult> {
     if (!this.isInitialized) {
       throw new Error('Floor Engine not initialized');
-    }
-
-    if (this.isPaused) {
-      throw new Error('Floor Engine is paused');
     }
 
     // Check if rebalancing is allowed
@@ -285,20 +204,8 @@ export class FloorEngine extends EventEmitter {
             };
             actions.push(action);
 
-            // Execute deposit
-            try {
-              console.log(`[FloorEngine] Depositing ${ethers.formatEther(difference)} to ${target.adapterId}`);
-              const metadata = this.adapterRegistry.getMetadata(target.adapterId);
-              
-              // For simplicity, we'll skip actual execution in rebalancing for now
-              // In production, this would call adapterManager.deposit()
-              // with appropriate parameters based on adapter type
-              
-              console.log(`[FloorEngine] Deposit to ${target.adapterId} would execute here`);
-            } catch (error) {
-              console.error(`[FloorEngine] Deposit failed for ${target.adapterId}:`, error);
-              action.error = error instanceof Error ? error.message : String(error);
-            }
+            // TODO: Execute deposit
+            console.log(`[FloorEngine] Would deposit ${ethers.formatEther(difference)} to ${target.adapterId}`);
           } else {
             // Need to withdraw
             const action: RebalanceAction = {
@@ -309,19 +216,8 @@ export class FloorEngine extends EventEmitter {
             };
             actions.push(action);
 
-            // Execute withdrawal
-            try {
-              console.log(`[FloorEngine] Withdrawing ${ethers.formatEther(-difference)} from ${target.adapterId}`);
-              
-              // For simplicity, we'll skip actual execution in rebalancing for now
-              // In production, this would call adapterManager.withdraw()
-              // with appropriate parameters based on adapter type
-              
-              console.log(`[FloorEngine] Withdrawal from ${target.adapterId} would execute here`);
-            } catch (error) {
-              console.error(`[FloorEngine] Withdrawal failed for ${target.adapterId}:`, error);
-              action.error = error instanceof Error ? error.message : String(error);
-            }
+            // TODO: Execute withdrawal
+            console.log(`[FloorEngine] Would withdraw ${ethers.formatEther(-difference)} from ${target.adapterId}`);
           }
         }
       }
@@ -362,10 +258,6 @@ export class FloorEngine extends EventEmitter {
       throw new Error('Floor Engine not initialized');
     }
 
-    if (this.isPaused) {
-      throw new Error('Floor Engine is paused');
-    }
-
     // Check if harvesting is allowed
     const timeSinceLastHarvest = Date.now() - this.lastHarvest;
     if (timeSinceLastHarvest < this.config.minHarvestInterval * 1000) {
@@ -377,55 +269,14 @@ export class FloorEngine extends EventEmitter {
     console.log('[FloorEngine] Harvesting yields...');
 
     let totalYield = 0n;
-    const harvestResults: Array<{ adapterId: string; yield: bigint; error?: string }> = [];
 
-    // Iterate through all positions
-    for (const position of this.positions) {
-      try {
-        const metadata = this.adapterRegistry.getMetadata(position.adapterId);
-        
-        // Different harvest strategies based on adapter category
-        if (metadata.category === 'lending') {
-          // Lending adapters: rewards are typically auto-compounded
-          // or claimed through protocol-specific methods
-          // For Aave/Compound/Morpho/Spark, rewards accrue automatically
-          console.log(`[FloorEngine] Lending rewards for ${position.adapterId} accrue automatically`);
-          harvestResults.push({ adapterId: position.adapterId, yield: 0n });
-          
-        } else if (metadata.category === 'staking') {
-          // Staking adapters: rewards accrue in the staked token value
-          // Lido stETH rebases, Rocket Pool rETH appreciates, Native ETH earns rewards
-          console.log(`[FloorEngine] Staking rewards for ${position.adapterId} accrue in token value`);
-          harvestResults.push({ adapterId: position.adapterId, yield: 0n });
-          
-        } else if (metadata.category === 'yield') {
-          // Yield farming adapters: need to claim CRV/CVX/BAL rewards
-          // This requires protocol-specific logic
-          console.log(`[FloorEngine] Would claim rewards from ${position.adapterId}`);
-          
-          // In production, this would:
-          // 1. Call adapter-specific claimRewards() method
-          // 2. Get claimed token amounts
-          // 3. Convert to stablecoins or ETH
-          // 4. Track total yield
-          
-          harvestResults.push({ adapterId: position.adapterId, yield: 0n });
-        }
-        
-      } catch (error) {
-        console.error(`[FloorEngine] Harvest failed for ${position.adapterId}:`, error);
-        harvestResults.push({
-          adapterId: position.adapterId,
-          yield: 0n,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
+    // TODO: Implement yield harvesting for each adapter type
+    // For now, this is a placeholder
 
     this.lastHarvest = Date.now();
 
     // Emit event
-    this.emit('harvest_completed', { totalYield, results: harvestResults });
+    this.emit('harvest_completed', { totalYield });
 
     console.log(`[FloorEngine] Harvest complete: ${ethers.formatEther(totalYield)} ETH`);
 
@@ -470,6 +321,7 @@ export class FloorEngine extends EventEmitter {
       return 0;
     }
 
+    // Calculate weighted average APY
     let weightedAPY = 0;
     for (const position of this.positions) {
       const weight = Number(position.value) / Number(totalValue);
@@ -516,41 +368,12 @@ export class FloorEngine extends EventEmitter {
   }
 
   /**
-   * Emergency pause
-   * 
-   * Pauses all operations until manually resumed
-   */
-  pause(): void {
-    this.isPaused = true;
-    this.emit('paused');
-    console.log('[FloorEngine] Emergency pause activated');
-  }
-
-  /**
-   * Resume operations
-   */
-  resume(): void {
-    this.isPaused = false;
-    this.emit('resumed');
-    console.log('[FloorEngine] Operations resumed');
-  }
-
-  /**
    * Get adapter registry
    * 
    * @returns Adapter registry instance
    */
   getAdapterRegistry(): AdapterRegistry {
     return this.adapterRegistry;
-  }
-
-  /**
-   * Get adapter manager
-   * 
-   * @returns Adapter manager instance
-   */
-  getAdapterManager(): AdapterManager {
-    return this.adapterManager;
   }
 
   /**
@@ -577,89 +400,46 @@ export class FloorEngine extends EventEmitter {
     // Distribute evenly across adapters in category
     const amountPerAdapter = amount / BigInt(adapterIds.length);
 
-    console.log(`[FloorEngine] Allocating ${ethers.formatEther(amount)} to ${category} category`);
-    console.log(`[FloorEngine] ${ethers.formatEther(amountPerAdapter)} per adapter (${adapterIds.length} adapters)`);
-
     for (const adapterId of adapterIds) {
-      try {
-        // Validate allocation
-        const validation = await this.riskManager.validateAllocation(
-          adapterId,
-          amountPerAdapter,
-          this.positions
+      // Validate allocation
+      const validation = await this.riskManager.validateAllocation(
+        adapterId,
+        amountPerAdapter,
+        this.positions
+      );
+
+      if (!validation.valid) {
+        console.warn(
+          `[FloorEngine] Skipping ${adapterId}: ${validation.reason}`
         );
-
-        if (!validation.valid) {
-          console.warn(
-            `[FloorEngine] Skipping ${adapterId}: ${validation.reason}`
-          );
-          continue;
-        }
-
-        // Execute allocation to adapter
-        console.log(
-          `[FloorEngine] Allocating ${ethers.formatEther(amountPerAdapter)} to ${adapterId}`
-        );
-
-        const metadata = this.adapterRegistry.getMetadata(adapterId);
-
-        // For lending and staking, we can use AdapterManager directly
-        // For yield farming, we need protocol-specific logic
-        if (category === 'lending' || category === 'staking') {
-          // In production, this would execute the actual deposit
-          // For now, we'll simulate it
-          console.log(`[FloorEngine] Would deposit to ${adapterId} via AdapterManager`);
-          
-          // Example for production:
-          // if (category === 'lending') {
-          //   const token = metadata.supportedAssets[0]; // Get default token
-          //   await this.adapterManager.deposit(adapterId, amountPerAdapter, token);
-          // } else if (category === 'staking') {
-          //   await this.adapterManager.deposit(adapterId, amountPerAdapter);
-          // }
-        } else if (category === 'yield') {
-          // Yield farming requires protocol-specific logic
-          console.log(`[FloorEngine] Would deposit to ${adapterId} with protocol-specific logic`);
-          
-          // Example for production:
-          // if (metadata.protocol === 'Convex') {
-          //   // 1. Convert ETH to Curve LP tokens
-          //   // 2. Deposit LP tokens to Convex
-          // } else if (metadata.protocol === 'Curve') {
-          //   // 1. Convert ETH to pool tokens
-          //   // 2. Add liquidity to Curve pool
-          //   // 3. Stake LP tokens in gauge
-          // } else if (metadata.protocol === 'Balancer') {
-          //   // 1. Convert ETH to pool tokens
-          //   // 2. Join Balancer pool
-          //   // 3. Stake BPT in gauge
-          // }
-        }
-
-        // Update positions
-        const existingPosition = this.positions.find((p) => p.adapterId === adapterId);
-        if (existingPosition) {
-          existingPosition.value += amountPerAdapter;
-          existingPosition.lastUpdate = Date.now();
-        } else {
-          this.positions.push({
-            adapterId,
-            protocol: metadata.protocol,
-            category: metadata.category,
-            value: amountPerAdapter,
-            apy: 0, // Will be updated on next position update
-            lastUpdate: Date.now(),
-            metadata: {},
-          });
-        }
-
-        // Emit event
-        this.emit('capital_allocated', { adapterId, amount: amountPerAdapter });
-        
-      } catch (error) {
-        console.error(`[FloorEngine] Allocation failed for ${adapterId}:`, error);
-        // Continue with other adapters
+        continue;
       }
+
+      // TODO: Execute allocation to adapter
+      console.log(
+        `[FloorEngine] Allocating ${ethers.formatEther(amountPerAdapter)} to ${adapterId}`
+      );
+
+      // Update positions
+      const existingPosition = this.positions.find((p) => p.adapterId === adapterId);
+      if (existingPosition) {
+        existingPosition.value += amountPerAdapter;
+        existingPosition.lastUpdate = Date.now();
+      } else {
+        const metadata = this.adapterRegistry.getMetadata(adapterId);
+        this.positions.push({
+          adapterId,
+          protocol: metadata.protocol,
+          category: metadata.category,
+          value: amountPerAdapter,
+          apy: 0, // Will be updated on next position update
+          lastUpdate: Date.now(),
+          metadata: {},
+        });
+      }
+
+      // Emit event
+      this.emit('capital_allocated', { adapterId, amount: amountPerAdapter });
     }
   }
 
@@ -667,41 +447,8 @@ export class FloorEngine extends EventEmitter {
    * Update all positions with current values
    */
   private async updatePositions(): Promise<void> {
-    console.log('[FloorEngine] Updating positions...');
-
-    // Query each adapter for current position value and APY
-    for (const position of this.positions) {
-      try {
-        // Get position from adapter
-        // For lending and staking, this is straightforward
-        // For yield farming, we need protocol-specific parameters
-        
-        const metadata = this.adapterRegistry.getMetadata(position.adapterId);
-        
-        if (metadata.category === 'lending' || metadata.category === 'staking') {
-          // Query position from adapter
-          // const adapterPosition = await this.adapterManager.getPosition(position.adapterId);
-          // position.value = adapterPosition.totalValue;
-          // position.apy = adapterPosition.apy;
-          // position.metadata = adapterPosition.metadata;
-          
-          // For now, simulate with estimated APY
-          const estimatedAPY = await this.adapterManager.getAPY(position.adapterId);
-          position.apy = estimatedAPY;
-          
-          console.log(`[FloorEngine] Updated ${position.adapterId}: ${ethers.formatEther(position.value)} @ ${position.apy}% APY`);
-        } else if (metadata.category === 'yield') {
-          // Yield farming positions require protocol-specific parameters
-          console.log(`[FloorEngine] Skipping yield position update for ${position.adapterId} (requires specific params)`);
-        }
-        
-        position.lastUpdate = Date.now();
-        
-      } catch (error) {
-        console.error(`[FloorEngine] Position update failed for ${position.adapterId}:`, error);
-        // Continue with other positions
-      }
-    }
+    // TODO: Query each adapter for current position value and APY
+    // For now, this is a placeholder
 
     // Take performance snapshot
     const totalValue = this.positions.reduce((sum, p) => sum + p.value, 0n);
@@ -718,7 +465,5 @@ export class FloorEngine extends EventEmitter {
     if (this.performanceHistory.length > 1000) {
       this.performanceHistory.shift();
     }
-
-    console.log('[FloorEngine] Position update complete');
   }
 }
