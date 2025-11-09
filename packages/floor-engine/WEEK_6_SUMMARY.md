@@ -202,7 +202,7 @@ const position = cacheManager.positions.getPosition(adapterId);
 - APY query for 10 adapters: 0 RPC calls (cached)
 - Total: 1 RPC call
 
-**Improvement**: 95% reduction in RPC calls
+**Improvement**: 90% reduction in RPC calls
 
 ### Query Speed
 
@@ -415,7 +415,7 @@ Week 6 successfully delivered multi-chain deployment infrastructure and performa
 **Key Achievements**:
 - ✅ 1,343+ lines of production-ready code
 - ✅ Support for 4 blockchains (21 total adapter instances)
-- ✅ 95% reduction in RPC calls
+- ✅ 90% reduction in RPC calls
 - ✅ 10x faster queries
 - ✅ Comprehensive documentation
 
