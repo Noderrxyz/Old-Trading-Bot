@@ -230,6 +230,14 @@ export class SlippageProtection {
 
   /**
    * Estimate price impact for swap (simplified)
+   * 
+   * NOTE: This is a placeholder implementation using simplified estimation.
+   * For production, integrate real price feeds:
+   * - Chainlink Price Feeds for accurate token prices
+   * - Uniswap V3 TWAP for DEX price impact
+   * - Pool reserve data for accurate impact calculation
+   * 
+   * Current implementation returns conservative estimates to ensure safety.
    */
   private estimatePriceImpact(inputAmount: bigint, outputAmount: bigint): number {
     // This is a simplified estimation
@@ -245,6 +253,9 @@ export class SlippageProtection {
 
   /**
    * Estimate price impact for liquidity operations (simplified)
+   * 
+   * NOTE: This is a placeholder implementation.
+   * For production, calculate actual price impact based on pool reserves.
    */
   private estimateLiquidityPriceImpact(amount0: bigint, amount1: bigint): number {
     // Liquidity operations typically have minimal price impact
