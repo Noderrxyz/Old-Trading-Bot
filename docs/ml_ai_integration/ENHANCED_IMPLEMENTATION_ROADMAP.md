@@ -47,23 +47,23 @@ This enhanced roadmap for Track B ensures that the Noderr trading system will be
 *   **Week 37-39:** Implement Federated Learning capabilities.
 *   **Week 40-43:** Integrate the existing Evolutionary Algorithms (from the archived `StrategyEvolutionEngine.ts`).
 
-### **Phase B.4 (NEW): EIM Research Integration (12 Weeks)**
-*   **Week 44-45: Implement Advanced Resampling Methods.**
+### **Phase B.4 (NEW): Shadow Swarm™ Integration (12 Weeks)**
+*   **Week 44-45: Integrate Moving Block Bootstrap into Shadow Swarm™.**
     *   **Component:** `MovingBlockBootstrap` in `@noderr/backtesting`.
     *   **Research:** Künsch (1993).
     *   **Purpose:** Generate statistically robust confidence intervals for backtest performance metrics.
 
-*   **Week 46-47: Implement Data Snooping Prevention.**
+*   **Week 46-47: Integrate White's Reality Check into Shadow Swarm™.**
     *   **Component:** `RealityCheck` in `@noderr/quant-research`.
     *   **Research:** White (2000).
     *   **Purpose:** Prevent the deployment of strategies that are overfit to historical data.
 
-*   **Week 48-51: Implement Particle Swarm Optimization.**
+*   **Week 48-51: Integrate Particle Swarm Optimization into Shadow Swarm™.**
     *   **Component:** `ParticleSwarmOptimizer` in `@noderr/ml`.
     *   **Research:** Eberhart & Kennedy (2001).
     *   **Purpose:** Efficiently optimize the hyperparameters of the Transformer and RL models.
 
-*   **Week 52-55: Implement Estimation of Distribution Algorithms.**
+*   **Week 52-55: Integrate Estimation of Distribution Algorithms into Shadow Swarm™.**
     *   **Component:** `EstimationOfDistributionAlgorithm` in a new `@noderr/evolution` package.
     *   **Research:** Larrañaga et al. (2006).
     *   **Purpose:** A more advanced method for automated strategy generation, replacing or augmenting the existing genetic algorithms.
