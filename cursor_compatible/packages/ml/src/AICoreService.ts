@@ -29,11 +29,11 @@ import {
   MarketRegime,
   RegimeAlignment,
   PositionSizingMethod
-} from '../types';
+} from './types';
 
-import { TransformerPredictor } from '../ml/TransformerPredictor';
-import { ReinforcementLearner } from '../ml/ReinforcementLearner';
-import { FractalPatternDetector } from '../core/FractalPatternDetector';
+import { TransformerPredictor } from './TransformerPredictor';
+import { ReinforcementLearner } from './ReinforcementLearner';
+import { FractalPatternDetector } from './FractalPatternDetector';
 // import { createLogger } from '../utils/logger';
 
 interface AIModels {

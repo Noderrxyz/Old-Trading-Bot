@@ -21,7 +21,7 @@ import {
   ReturnDistribution,
   TimingSignal,
   TradingAction
-} from '../types';
+} from './types';
 
 interface AttentionWeights {
   weights: tf.Tensor;

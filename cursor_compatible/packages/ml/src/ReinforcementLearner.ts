@@ -22,7 +22,7 @@ import {
   ModelPerformance,
   MLError,
   MLErrorCode
-} from '../types';
+} from './types';
 
 interface Experience {
   state: tf.Tensor;

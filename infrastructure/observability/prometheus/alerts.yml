@@ -1,0 +1,198 @@
+groups:
+  - name: system_alerts
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected on {{ $labels.instance }}"
+          description: "CPU usage is above 80% (current value: {{ $value }}%)"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% (current value: {{ $value }}%)"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk space is below 15% (current value: {{ $value }}%)"
+
+  - name: ml_service_alerts
+    interval: 15s
+    rules:
+      - alert: MLServiceDown
+        expr: up{job="ml-prediction-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ML Prediction Service is down"
+          description: "ML Prediction Service has been down for more than 1 minute"
+
+      - alert: HighPredictionLatency
+        expr: histogram_quantile(0.99, rate(ml_prediction_latency_seconds_bucket[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High prediction latency detected"
+          description: "P99 prediction latency is above 100ms (current value: {{ $value }}s)"
+
+      - alert: HighPredictionErrorRate
+        expr: rate(ml_prediction_errors_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High prediction error rate"
+          description: "Prediction error rate is above 5% (current value: {{ $value }})"
+
+      - alert: ModelLoadFailure
+        expr: increase(ml_model_load_failures_total[10m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Model load failure detected"
+          description: "Failed to load model {{ $labels.model_name }} version {{ $labels.model_version }}"
+
+  - name: feature_store_alerts
+    interval: 15s
+    rules:
+      - alert: FeatureStoreDown
+        expr: up{job="feature-store"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Feature Store is down"
+          description: "Feature Store has been down for more than 1 minute"
+
+      - alert: HighFeatureServingLatency
+        expr: histogram_quantile(0.99, rate(feature_serving_latency_seconds_bucket[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High feature serving latency"
+          description: "P99 feature serving latency is above 10ms (current value: {{ $value }}s)"
+
+      - alert: StaleFeatures
+        expr: time() - feature_last_update_timestamp_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Stale features detected"
+          description: "Feature {{ $labels.feature_name }} has not been updated in 5 minutes"
+
+  - name: data_ingestion_alerts
+    interval: 15s
+    rules:
+      - alert: DataIngestionDown
+        expr: up{job="data-ingestion"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Data Ingestion Service is down"
+          description: "Data Ingestion Service has been down for more than 1 minute"
+
+      - alert: LowDataIngestionRate
+        expr: rate(data_ingestion_messages_total[5m]) < 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low data ingestion rate"
+          description: "Data ingestion rate is below 100 msg/s (current value: {{ $value }})"
+
+      - alert: HighDataQualityFailureRate
+        expr: rate(data_quality_failures_total[5m]) / rate(data_ingestion_messages_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High data quality failure rate"
+          description: "Data quality failure rate is above 1% (current value: {{ $value }})"
+
+  - name: trading_system_alerts
+    interval: 15s
+    rules:
+      - alert: StrategyExecutorDown
+        expr: up{job="strategy-executor"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Strategy Executor is down"
+          description: "Strategy Executor has been down for more than 1 minute"
+
+      - alert: FloorEngineDown
+        expr: up{job="floor-engine"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Floor Engine is down"
+          description: "Floor Engine has been down for more than 1 minute"
+
+      - alert: ExecutionEngineDown
+        expr: up{job="execution-engine"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Execution Engine is down"
+          description: "Execution Engine has been down for more than 1 minute"
+
+      - alert: HighOrderRejectionRate
+        expr: rate(order_rejections_total[5m]) / rate(orders_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High order rejection rate"
+          description: "Order rejection rate is above 5% (current value: {{ $value }})"
+
+  - name: database_alerts
+    interval: 30s
+    rules:
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL/TimescaleDB is down"
+          description: "PostgreSQL/TimescaleDB has been down for more than 1 minute"
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute"
+
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connection usage"
+          description: "Database connection usage is above 80% (current value: {{ $value }}%)"

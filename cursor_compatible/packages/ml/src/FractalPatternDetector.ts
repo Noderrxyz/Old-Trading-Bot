@@ -11,7 +11,7 @@ import { Logger } from 'winston';import EventEmitter from 'events';import {
   TechnicalFeatures,
   MLError,
   MLErrorCode
-} from '../types';
+} from './types';
 
 interface PatternWindow {
   startIndex: number;

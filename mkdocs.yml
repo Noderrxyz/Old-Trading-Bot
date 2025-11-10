@@ -1,0 +1,100 @@
+site_name: Noderr Active Trading System
+site_description: Next-generation ML-powered algorithmic trading platform
+site_author: Noderr Engineering Team
+site_url: https://noderrxyz.github.io/Old-Trading-Bot/
+
+repo_name: Noderrxyz/Old-Trading-Bot
+repo_url: https://github.com/Noderrxyz/Old-Trading-Bot
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mermaid2
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Quick Start: getting-started/quickstart.md
+      - Development Setup: getting-started/dev-setup.md
+      - Contributing: getting-started/contributing.md
+  - Architecture:
+      - Overview: architecture/system-overview.md
+      - Data Infrastructure: architecture/data-infrastructure.md
+      - ML/AI Architecture: architecture/ml-ai-architecture.md
+      - Microservices: architecture/microservices.md
+      - Security: architecture/security.md
+      - ADRs: architecture/adrs/
+  - API Reference:
+      - ML Prediction Service: api/ml-prediction-service.md
+      - Feature Store: api/feature-store.md
+      - Model Registry: api/model-registry.md
+      - Data Ingestion: api/data-ingestion.md
+  - Runbooks:
+      - Deployment: runbooks/deployment.md
+      - Model Deployment: runbooks/model-deployment.md
+      - Incident Response: runbooks/incident-response.md
+      - Troubleshooting: runbooks/troubleshooting.md
+      - Monitoring: runbooks/monitoring.md
+  - Analysis:
+      - ML/AI Optimization: analysis/ML_AI_OPTIMIZATION_ANALYSIS.md
+      - System Architecture: analysis/SYSTEM_ARCHITECTURE_FINDINGS.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Noderrxyz
+  version:
+    provider: mike
+
+copyright: Copyright &copy; 2025 Noderr Team

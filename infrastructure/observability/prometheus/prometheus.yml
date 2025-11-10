@@ -1,0 +1,93 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'noderr-trading-system'
+    environment: 'development'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter - System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # cAdvisor - Container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # ML Prediction Service
+  - job_name: 'ml-prediction-service'
+    static_configs:
+      - targets: ['ml-prediction-service:5000']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Feature Store Service
+  - job_name: 'feature-store'
+    static_configs:
+      - targets: ['feature-store:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Data Ingestion Service
+  - job_name: 'data-ingestion'
+    static_configs:
+      - targets: ['data-ingestion:8002']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Model Registry Service
+  - job_name: 'model-registry'
+    static_configs:
+      - targets: ['model-registry:8003']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Strategy Executor
+  - job_name: 'strategy-executor'
+    static_configs:
+      - targets: ['strategy-executor:8004']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Floor Engine
+  - job_name: 'floor-engine'
+    static_configs:
+      - targets: ['floor-engine:8005']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Execution Engine
+  - job_name: 'execution-engine'
+    static_configs:
+      - targets: ['execution-engine:8006']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # PostgreSQL/TimescaleDB Exporter
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']

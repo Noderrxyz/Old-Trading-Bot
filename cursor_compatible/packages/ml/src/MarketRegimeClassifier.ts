@@ -1,5 +1,5 @@
-import { createLogger } from '../utils/logger';
-import { TelemetryBus } from '../telemetry/TelemetryBus';
+import { Logger } from 'winston';
+// TelemetryBus will be imported from @noderr/telemetry when available
 import {
   MarketRegime,
   RegimeTransitionState,

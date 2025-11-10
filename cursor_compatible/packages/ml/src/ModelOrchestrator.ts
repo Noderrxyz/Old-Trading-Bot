@@ -19,7 +19,7 @@ import {
   ModelType,
   Predictions,
   FeatureImportance
-} from '../types';
+} from './types';
 
 interface ModelInstance {
   id: string;

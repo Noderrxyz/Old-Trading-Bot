@@ -5,8 +5,194 @@
  */
 
 import { Logger } from 'winston';
+import * as tf from '@tensorflow/tfjs';
 
-// ============ Core Types ============
+// ============ Core ML Types ============
+
+export interface TransformerConfig {
+  sequenceLength: number;
+  features: string[];
+  horizon: number;
+  modelDim?: number;
+  numHeads?: number;
+  numLayers?: number;
+  dropout?: number;
+  learningRate?: number;
+}
+
+export interface FeatureSet {
+  timestamp: number;
+  features: Record<string, number>;
+  metadata?: Record<string, any>;
+}
+
+export interface PredictionResult {
+  timestamp: number;
+  predictions: number[];
+  confidence: ConfidenceMetrics;
+  metadata?: Record<string, any>;
+}
+
+export interface Predictions {
+  values: number[];
+  timestamps: number[];
+  confidence: number[];
+}
+
+export interface ConfidenceMetrics {
+  mean: number;
+  std: number;
+  min: number;
+  max: number;
+}
+
+export interface ModelPerformance {
+  mae: number;
+  rmse: number;
+  sharpe?: number;
+  accuracy?: number;
+  lastUpdated: number;
+}
+
+export enum ModelStatus {
+  UNINITIALIZED = 'uninitialized',
+  TRAINING = 'training',
+  READY = 'ready',
+  ERROR = 'error'
+}
+
+export interface TradingSignal {
+  action: TradingAction;
+  symbol: string;
+  confidence: number;
+  source?: string;
+  timestamp: number;
+  metadata?: Record<string, any>;
+}
+
+export type TradingAction = 'buy' | 'sell' | 'hold';
+
+export interface MLError {
+  code: MLErrorCode;
+  message: string;
+  details?: any;
+}
+
+export enum MLErrorCode {
+  MODEL_NOT_INITIALIZED = 'MODEL_NOT_INITIALIZED',
+  INVALID_INPUT = 'INVALID_INPUT',
+  TRAINING_FAILED = 'TRAINING_FAILED',
+  PREDICTION_FAILED = 'PREDICTION_FAILED'
+}
+
+export interface FeatureImportance {
+  feature: string;
+  importance: number;
+  rank: number;
+}
+
+export interface ReturnDistribution {
+  mean: number;
+  std: number;
+  skew: number;
+  kurtosis: number;
+  quantiles: Record<string, number>;
+}
+
+export interface TimingSignal {
+  timestamp: number;
+  signal: number;
+  confidence: number;
+}
+
+// ============ RL Types ============
+
+export interface RLConfig {
+  algorithm: RLAlgorithm;
+  stateSpace: StateSpace;
+  actionSpace: ActionSpace;
+  rewardFunction: RewardFunction;
+  hyperparameters: RLHyperparameters;
+  memory?: MemoryConfig;
+}
+
+export enum RLAlgorithm {
+  DQN = 'DQN',
+  DDQN = 'DDQN',
+  PPO = 'PPO',
+  A3C = 'A3C',
+  SAC = 'SAC'
+}
+
+export interface StateSpace {
+  dimensions: number;
+  features: string[];
+  normalization?: 'minmax' | 'zscore' | 'none';
+}
+
+export interface ActionSpace {
+  type: 'discrete' | 'continuous';
+  dimensions: number;
+  actions?: string[];
+  bounds?: [number, number][];
+}
+
+export interface RLHyperparameters {
+  learningRate: number;
+  discountFactor: number;
+  epsilon?: number;
+  epsilonDecay?: number;
+  batchSize: number;
+  bufferSize?: number;
+}
+
+export interface MemoryConfig {
+  type: 'uniform' | 'prioritized';
+  capacity: number;
+  alpha?: number;
+  beta?: number;
+}
+
+export interface RLEnvironment {
+  reset(): Promise<any>;
+  step(action: any): Promise<{ state: any; reward: number; done: boolean }>;
+  getState(): any;
+}
+
+export interface ExplorationStrategy {
+  type: 'epsilon-greedy' | 'boltzmann' | 'ucb';
+  params: Record<string, number>;
+}
+
+// ============ External Integration Types ============
+
+export interface ExternalSignal {
+  provider: SignalProvider;
+  symbol: string;
+  signal: number;
+  strength: number;
+  confidence: number;
+  timestamp: number;
+  metadata?: Record<string, any>;
+}
+
+export enum SignalProvider {
+  NUMERAI = 'numerai',
+  QUANTCONNECT = 'quantconnect',
+  CUSTOM = 'custom'
+}
+
+export interface OrchestrationState {
+  activeModels: string[];
+  activeComponents: string[];
+  isActive: boolean;
+  performance: Record<string, ModelPerformance>;
+  allocation: Record<string, number>;
+  currentSignals: TradingSignal[];
+  lastUpdate: number;
+}
+
+// ============ Model Expansion Types ============
 
 export interface ModelExpansionConfig {
   llm: {
@@ -76,6 +262,10 @@ export interface LLMStrategy {
   id: string;
   prompt: string;
   generatedCode: string;
+  description?: string;
+  entryConditions?: any;
+  targetAssets?: string[];
+  confidence?: number;
   constraints: SafetyConstraints;
   performance?: StrategyPerformance;
   status: 'generating' | 'validating' | 'backtesting' | 'paper' | 'live' | 'rejected';
@@ -419,3 +609,13 @@ export namespace ModelExpansion {
   export type Events = ModelExpansionEvents;
   export type Metrics = ModelExpansionMetrics;
 } 
+// Additional validation types
+export interface ModelMetrics {
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  auc?: number;
+}
+
+export type ValidationResult = ValidationReport;

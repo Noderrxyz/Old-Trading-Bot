@@ -22,7 +22,6 @@
   "references": [
     { "path": "../types" },
     { "path": "../utils" },
-    { "path": "../telemetry" },
-    { "path": "../execution" }
+    { "path": "../telemetry" }
   ]
 } 

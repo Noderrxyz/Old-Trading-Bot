@@ -17,7 +17,7 @@ import {
   NormalizationMethod,
   MLError,
   MLErrorCode
-} from '../types';
+} from './types';
 
 interface FeatureConfig {
   polynomialDegree: number;
